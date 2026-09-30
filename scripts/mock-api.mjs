@@ -182,6 +182,9 @@ const extras = {
     s1: [
       { id: "m1", authorId: "fer", fromLeader: true, text: "Pessoal, domingo teremos batismo. Câmera 2 fica na lateral esquerda.", createdAt: ago(20) },
       { id: "m2", authorId: "joao", fromLeader: false, text: "Combinado! Levo o tripé extra.", createdAt: ago(18) },
+      { id: "m3", authorId: "ana", fromLeader: false, text: "A transmissão começa 17h50. Alguém confere o áudio comigo antes?", createdAt: ago(6) },
+      { id: "m4", authorId: "fer", fromLeader: true, text: "Ana, o Lucas chega mais cedo e te ajuda. Obrigada, equipe!", createdAt: ago(5) },
+      { id: "m5", authorId: "ramon", fromLeader: true, text: "Estarei lá às 17h30. Vai ser um culto lindo!", createdAt: ago(2) },
     ],
   },
   songs: [
@@ -190,6 +193,9 @@ const extras = {
     { id: "sg3", title: "Santo Espírito", artist: "Laura Souguellis", key: "D", bpm: 68, theme: "Adoração", lyrics_url: "", chords_url: "https://www.cifraclub.com.br", video_url: "", notes: "", department_id: null, times_used: 5 },
     { id: "sg4", title: "Ceia do Senhor", artist: "", key: "E", bpm: null, theme: "Ceia", lyrics_url: "", chords_url: "", video_url: "", notes: "", department_id: null, times_used: 2 },
     { id: "sg5", title: "Ao Único", artist: "Aline Barros", key: "C", bpm: 76, theme: "Abertura", lyrics_url: "", chords_url: "", video_url: "", notes: "", department_id: null, times_used: 3 },
+    { id: "sg6", title: "Bondade de Deus", artist: "Isaías Saad", key: "G", bpm: 68, theme: "Adoração", lyrics_url: "", chords_url: "https://www.cifraclub.com.br", video_url: "https://www.youtube.com", notes: "", department_id: null, times_used: 10 },
+    { id: "sg7", title: "Lindo És", artist: "Livres para Adorar", key: "E", bpm: 70, theme: "Adoração", lyrics_url: "", chords_url: "https://www.cifraclub.com.br", video_url: "", notes: "", department_id: null, times_used: 7 },
+    { id: "sg8", title: "Deus de Promessas", artist: "Davi Sacer", key: "D", bpm: 124, theme: "Louvor", lyrics_url: "", chords_url: "", video_url: "https://www.youtube.com", notes: "", department_id: null, times_used: 6 },
   ],
   setlists: { s5: [{ songId: "sg2", key: "" }, { songId: "sg1", key: "A" }] },
   files: {
