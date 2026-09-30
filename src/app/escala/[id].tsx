@@ -21,6 +21,7 @@ import {
   UsersThreeIcon,
   type Icon,
 } from "@/components/ui/icons";
+import { ScheduleExtras } from "@/components/schedule/ScheduleExtras";
 import { Screen, SectionHeader } from "@/components/ui/Screen";
 import { ScheduleCardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState, ErrorState, OfflineBanner } from "@/components/ui/States";
@@ -117,6 +118,7 @@ function Detail({ data, refreshing, onRefresh }: { data: MobileScheduleDetail; r
           </Card>
         </>
       ) : null}
+      <ScheduleExtras data={data} />
       <Leaders data={data} />
       <Team data={data} onMember={canManage ? leader.openMember : undefined} />
       {canManage ? leader.sheets : null}

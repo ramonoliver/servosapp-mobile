@@ -85,6 +85,12 @@ export async function unregisterPushOnLogout() {
 }
 
 /** URL do web gravada pelo servidor no push (`data.url`). */
+/** Multi-igreja: de qual igreja é o aviso (o servidor manda `church_id`). */
+export function churchOfNotification(notification: Notifications.Notification): string | null {
+  const data = notification.request.content.data as Record<string, unknown> | undefined;
+  return typeof data?.church_id === "string" && data.church_id ? data.church_id : null;
+}
+
 export function urlFromNotification(notification: Notifications.Notification): string | null {
   const data = notification.request.content.data as Record<string, unknown> | undefined;
   const url = data?.url ?? data?.click_action;

@@ -1,7 +1,7 @@
 import DateTimePicker, { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { formatLongDate, formatTime } from "@/features/schedules/format";
-import { color, hitSize, radius, space } from "@/theme/tokens";
+import { color, hitSize, radius, space, fixed } from "@/theme/tokens";
 import { Text } from "./Text";
 
 // Data/hora com o seletor NATIVO do sistema (§44 DatePicker/TimePicker).
@@ -76,11 +76,10 @@ export function DateTimeField({
             minimumDate={min}
             maximumDate={max}
             minuteInterval={mode === "time" ? 5 : undefined}
-            accentColor={color.primary}
-            themeVariant="light"
+            accentColor={fixed.brand}
             onValueChange={(_e, date) => onChange(fromDate(date, mode))}
             accessibilityLabel={`${label}: ${shown}`}
-            style={styles.iosPicker}
+            style={[styles.iosPicker, mode === "time" ? styles.iosPickerTime : null]}
           />
           {!value ? (
             <Text variant="label" color="mutedForeground">
@@ -125,5 +124,6 @@ const styles = StyleSheet.create({
   fieldError: { borderColor: color.danger },
   iosRow: { flexDirection: "row", alignItems: "center", gap: space[2], minHeight: hitSize },
   // O controle "compact" do iOS vem com recuo próprio: alinha com os demais campos.
-  iosPicker: { alignSelf: "flex-start", marginLeft: -24 },
+  iosPicker: { alignSelf: "flex-start", marginLeft: -19 },
+  iosPickerTime: { marginLeft: -10 },
 });

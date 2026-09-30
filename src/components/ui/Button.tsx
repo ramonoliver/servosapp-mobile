@@ -1,5 +1,5 @@
 import * as Haptics from "expo-haptics";
-import { ActivityIndicator, Pressable, StyleSheet, View, type PressableProps } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View, type ColorValue, type PressableProps } from "react-native";
 import { buttonHeight, color, radius, space } from "@/theme/tokens";
 import type { Icon } from "./icons";
 import { Text } from "./Text";
@@ -15,7 +15,7 @@ export interface ButtonProps extends Omit<PressableProps, "children" | "style"> 
   fullWidth?: boolean;
 }
 
-const VARIANTS: Record<Variant, { bg: string; pressed: string; fg: keyof typeof color; border?: string }> = {
+const VARIANTS: Record<Variant, { bg: ColorValue; pressed: ColorValue; fg: keyof typeof color; border?: ColorValue }> = {
   primary: { bg: color.primary, pressed: color.primaryPressed, fg: "primaryForeground" },
   secondary: { bg: color.surface, pressed: color.surfacePressed, fg: "foreground", border: color.borderStrong },
   ghost: { bg: "transparent", pressed: color.muted, fg: "primaryText" },

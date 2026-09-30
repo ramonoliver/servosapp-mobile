@@ -1,19 +1,21 @@
 import { StyleSheet, View } from "react-native";
 import type { MyMinistry } from "@/api/contracts";
 import { AvatarGroup } from "@/components/ui/Avatar";
-import { PressableCard } from "@/components/ui/Card";
+import { Card, PressableCard } from "@/components/ui/Card";
 import { router } from "expo-router";
-import { UsersThreeIcon } from "@/components/ui/icons";
+import { MusicNotesIcon, UsersThreeIcon } from "@/components/ui/icons";
+import { ListRow } from "@/components/ui/ListRow";
 import { Screen, ScreenTitle } from "@/components/ui/Screen";
 import { ScheduleCardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState, ErrorState, OfflineBanner } from "@/components/ui/States";
 import { Text } from "@/components/ui/Text";
-import { useMinistries } from "@/features/schedules/queries";
+import { useMinistries, useOverview } from "@/features/schedules/queries";
 import { joinNames } from "@/features/schedules/status";
 import { color, radius, space } from "@/theme/tokens";
 
 export default function MinistriesScreen() {
   const { data, isPending, isError, error, refetch, isRefetching } = useMinistries();
+  const overview = useOverview();
   return (
     <Screen refreshing={isRefetching} onRefresh={refetch}>
       <ScreenTitle title="Ministérios" />
@@ -34,6 +36,11 @@ export default function MinistriesScreen() {
       ) : (
         data?.items.map((m) => <MinistryCard key={m.ministry.id} item={m} />)
       )}
+      {overview.data?.access?.canSeeRepertoire ? (
+        <Card padded={false}>
+          <ListRow icon={MusicNotesIcon} title="Repertório" subtitle="Músicas, tons e cifras da igreja" onPress={() => router.push("/repertorio")} />
+        </Card>
+      ) : null}
     </Screen>
   );
 }

@@ -6,11 +6,14 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.servosapp.app",
       "supportsTablet": false,
-      "associatedDomains": ["applinks:servosapp.com", "applinks:www.servosapp.com"],
+      "associatedDomains": [
+        "applinks:servosapp.com",
+        "applinks:www.servosapp.com"
+      ],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -29,10 +32,21 @@
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "https", "host": "servosapp.com", "pathPrefix": "/entrar" },
-            { "scheme": "https", "host": "www.servosapp.com", "pathPrefix": "/entrar" }
+            {
+              "scheme": "https",
+              "host": "servosapp.com",
+              "pathPrefix": "/entrar"
+            },
+            {
+              "scheme": "https",
+              "host": "www.servosapp.com",
+              "pathPrefix": "/entrar"
+            }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -49,7 +63,11 @@
         {
           "backgroundColor": "#F2F0EC",
           "image": "./assets/splash-icon.png",
-          "imageWidth": 96
+          "imageWidth": 96,
+          "dark": {
+            "backgroundColor": "#100E0B",
+            "image": "./assets/splash-icon.png"
+          }
         }
       ],
       [
@@ -59,7 +77,25 @@
           "defaultChannel": "escalas"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-calendar",
+        {
+          "writeOnlyAccess": true,
+          "writeOnlyCalendarPermission": "O Servos adiciona suas escalas à agenda do celular, com lembrete. Ele não lê seus outros compromissos.",
+          "calendarPermission": "O Servos adiciona suas escalas à agenda do celular, com lembrete.",
+          "remindersPermission": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Servos usa suas fotos para a foto de perfil e para anexar arquivos à escala.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      "expo-document-picker"
     ],
     "experiments": {
       "typedRoutes": true

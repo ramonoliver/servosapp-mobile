@@ -14,7 +14,7 @@ import { Text } from "@/components/ui/Text";
 import { TextField } from "@/components/ui/TextField";
 import { useToast } from "@/components/ui/Toast";
 import { errorText } from "@/features/leader/queries";
-import { color, font, radius, space } from "@/theme/tokens";
+import { color, font, radius, space, fixed } from "@/theme/tokens";
 import { track } from "@/lib/analytics";
 
 // Convidar (admin e liderança): código fixo da igreja + link/QR de quem
@@ -91,7 +91,7 @@ export default function InviteScreen() {
           <Skeleton width={180} height={44} />
         )}
         <View style={styles.qr} accessible accessibilityLabel="QR code do convite">
-          {data ? <QRCode value={data.url} size={168} color={color.foreground} backgroundColor={color.surface} /> : <Skeleton width={168} height={168} />}
+          {data ? <QRCode value={data.url} size={168} color={fixed.ink} backgroundColor={fixed.paper} /> : <Skeleton width={168} height={168} />}
         </View>
         <Text variant="caption" color="mutedForeground" align="center">
           Aponte a câmera do celular para o QR code ou digite o código no app.

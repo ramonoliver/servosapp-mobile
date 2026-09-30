@@ -13,6 +13,7 @@ import { EmptyState, ErrorState, useIsOnline } from "@/components/ui/States";
 import { Text } from "@/components/ui/Text";
 import { useToast } from "@/components/ui/Toast";
 import { errorText, useMinistryDetail, useOccurrences, useRefreshLeaderData } from "@/features/leader/queries";
+import { useOverview } from "@/features/schedules/queries";
 import { churchToday, dayLabel, formatShortDate, formatTime } from "@/features/schedules/format";
 import { color, hitSize, radius, space } from "@/theme/tokens";
 import { track } from "@/lib/analytics";
@@ -37,6 +38,8 @@ export default function NewScheduleScreen() {
   const refresh = useRefreshLeaderData();
   const online = useIsOnline();
   const today = churchToday();
+  const canCreateEvents = Boolean(useOverview().data?.access?.canCreateEvents);
+  const newEvent = () => router.push({ pathname: "/novo-evento", params: { ministryId: id } });
 
   const openSchedule = (scheduleId: string) => router.replace({ pathname: "/escala/[id]", params: { id: scheduleId } });
 
@@ -104,7 +107,13 @@ export default function NewScheduleScreen() {
           Próximas 8 semanas · {m.ministry.name}
         </Text>
         {items.length === 0 ? (
-          <EmptyState icon={CalendarPlusIcon} title="Nenhum evento programado" description="Os eventos são cadastrados pela administração da igreja." />
+          <EmptyState
+            icon={CalendarPlusIcon}
+            title="Nenhum evento programado"
+            description={canCreateEvents ? "Crie o culto ou evento e depois monte a escala." : "Os eventos são cadastrados pela administração da igreja."}
+            actionLabel={canCreateEvents ? "Criar evento" : undefined}
+            onAction={newEvent}
+          />
         ) : (
           <Card padded={false}>
             {items.map((o, i) => (
@@ -130,6 +139,9 @@ export default function NewScheduleScreen() {
             ))}
           </Card>
         )}
+        {canCreateEvents && items.length > 0 ? (
+          <Button label="Criar outro evento" icon={CalendarPlusIcon} variant="ghost" onPress={newEvent} />
+        ) : null}
       </Screen>
     );
   }

@@ -23,6 +23,7 @@ export interface MinistryRef {
   name: string;
   color: string | null;
   icon: string | null;
+  kind?: string | null;
 }
 
 export interface AssignmentCard {
@@ -76,7 +77,13 @@ export interface MobileOverview {
   leader: { ministries: LeaderMinistrySummary[]; attention: LeaderAttentionItem[] } | null;
   unreadNotifications: number;
   /** O que o app oferece a esta pessoa na entrada de novas pessoas. */
-  access?: { canInvite: boolean; canRegenerateCode: boolean };
+  access?: {
+    canInvite: boolean;
+    canRegenerateCode: boolean;
+    canCreateEvents?: boolean;
+    canSeeRepertoire?: boolean;
+    canManageSongs?: boolean;
+  };
   /** Pedidos de entrada na igreja que ela pode aprovar agora. */
   joinRequests?: number;
   generatedAt: string;
@@ -349,4 +356,62 @@ export interface MinistryReport {
   };
   averageServed: number;
   people: PersonReport[];
+}
+
+// ── Conversa, músicas, arquivos, repertório, multi-igreja ───────────────────
+
+export interface ChatMessage {
+  id: string;
+  text: string;
+  createdAt: string;
+  mine: boolean;
+  fromLeader: boolean;
+  author: { id: string; name: string; photoUrl: string | null; avatarColor: string | null };
+}
+
+export interface SetlistEntry {
+  position: number;
+  songId: string;
+  title: string;
+  artist: string;
+  key: string;
+  originalKey: string;
+  bpm: number | null;
+  videoUrl: string | null;
+  chordsUrl: string | null;
+  lyricsUrl: string | null;
+}
+
+export interface ScheduleFile {
+  id: string;
+  scheduleId: string;
+  name: string;
+  size: number;
+  contentType: string;
+  uploadedByName?: string;
+  createdAt: string;
+  url?: string;
+}
+
+export interface Song {
+  id: string;
+  title: string;
+  artist: string;
+  key: string;
+  bpm: number | null;
+  theme: string;
+  lyrics_url: string;
+  chords_url: string;
+  video_url: string;
+  notes: string;
+  department_id: string | null;
+  times_used?: number;
+  last_used?: string | null;
+}
+
+export interface MyChurch {
+  churchId: string;
+  churchName: string;
+  status: "active" | "pending";
+  current: boolean;
 }

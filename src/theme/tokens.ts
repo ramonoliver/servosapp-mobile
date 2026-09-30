@@ -1,3 +1,5 @@
+import { Appearance, DynamicColorIOS, Platform, type ColorValue } from "react-native";
+
 // Tokens do Servos Mobile — espelho da paleta do web (Servos-v3
 // app/src/index.css), convertida de HSL para hex. Componentes usam SÓ os
 // semânticos (`color.*`); a paleta crua fica aqui dentro.
@@ -19,60 +21,86 @@ const palette = {
   info: { 50: "#F0F7FE", 100: "#DEEDFF", 600: "#2076C9", 700: "#105FA6" },
 } as const;
 
+// Modo escuro: cada cor semântica tem par claro/escuro. No iOS a troca é ao
+// vivo (DynamicColorIOS, resolvida pelo sistema). No Android o esquema é
+// lido quando o app abre.
+const launchScheme = Appearance.getColorScheme();
+const pair = (light: string, dark: string): ColorValue =>
+  Platform.OS === "ios" && typeof DynamicColorIOS === "function"
+    ? DynamicColorIOS({ light, dark })
+    : launchScheme === "dark"
+      ? dark
+      : light;
+
+/** Neutros do escuro: mesma família "Linho", quente. */
+const night = {
+  bg: "#100E0B", surface: "#1C1916", sunken: "#171411", pressed: "#2A2622", muted: "#25211D",
+  border: "#2E2A26", borderStrong: "#48443F", hero: "#2A2521",
+} as const;
+
 export const color = {
   // Laranja Servos: ação principal e marca.
-  primary: palette.brand[600],
-  primaryPressed: palette.brand[700],
-  primaryForeground: palette.neutral[0],
-  primarySoft: palette.brand[50],
-  /** Texto/ícone laranja sobre `primarySoft` (5.9:1). `primary` ali dá só 4.3:1. */
-  primaryText: palette.brand[700],
-  brandMark: palette.brand[500],
+  primary: pair(palette.brand[600], palette.brand[600]),
+  primaryPressed: pair(palette.brand[700], palette.brand[700]),
+  primaryForeground: pair(palette.neutral[0], palette.neutral[0]),
+  primarySoft: pair(palette.brand[50], "#3A1D13"),
+  /** Texto/ícone laranja sobre `primarySoft` (5.9:1 no claro, 6.4:1 no escuro). */
+  primaryText: pair(palette.brand[700], "#FF936F"),
+  brandMark: pair(palette.brand[500], palette.brand[500]),
   /** Creme do símbolo sobre o laranja da marca. */
-  primaryForegroundOnBrand: "#F5EDE4",
+  primaryForegroundOnBrand: pair("#F5EDE4", "#F5EDE4"),
 
-  background: palette.neutral[100], // "mesa" — fundo das telas
-  surface: palette.neutral[0], // "folha" — cartões e listas
-  surfaceSunken: palette.neutral[50],
-  surfacePressed: palette.neutral[150],
-  foreground: palette.neutral[900],
-  foregroundSecondary: palette.neutral[600],
-  muted: palette.neutral[100],
-  mutedForeground: palette.neutral[500], // 4.9:1 sobre branco (AA)
-  disabled: palette.neutral[400],
-  border: palette.neutral[200],
-  borderStrong: palette.neutral[300],
-  inverse: palette.neutral[900],
-  inverseForeground: palette.neutral[0],
-  scrim: "rgba(16, 14, 11, 0.32)",
-  shadow: palette.neutral[950],
-  /** Ícones sobre fundo escuro (toast). */
-  successOnInverse: palette.success[100],
-  dangerOnInverse: palette.danger[100],
+  background: pair(palette.neutral[100], night.bg), // "mesa" — fundo das telas
+  surface: pair(palette.neutral[0], night.surface), // "folha" — cartões e listas
+  surfaceSunken: pair(palette.neutral[50], night.sunken),
+  surfacePressed: pair(palette.neutral[150], night.pressed),
+  foreground: pair(palette.neutral[900], palette.neutral[50]),
+  foregroundSecondary: pair(palette.neutral[600], palette.neutral[300]),
+  muted: pair(palette.neutral[100], night.muted),
+  mutedForeground: pair(palette.neutral[500], palette.neutral[400]), // AA nos dois
+  disabled: pair(palette.neutral[400], palette.neutral[600]),
+  border: pair(palette.neutral[200], night.border),
+  borderStrong: pair(palette.neutral[300], night.borderStrong),
+  inverse: pair(palette.neutral[900], palette.neutral[100]),
+  inverseForeground: pair(palette.neutral[0], palette.neutral[900]),
+  scrim: pair("rgba(16, 14, 11, 0.32)", "rgba(0, 0, 0, 0.6)"),
+  shadow: pair(palette.neutral[950], "#000000"),
+  /** Ícones sobre fundo invertido (toast). */
+  successOnInverse: pair(palette.success[100], palette.success[700]),
+  dangerOnInverse: pair(palette.danger[100], palette.danger[700]),
 
   // Cartão herói escuro (Próxima escala na Home): destaca do resto da tela.
-  heroSurface: palette.neutral[900],
-  heroForeground: palette.neutral[0],
+  heroSurface: pair(palette.neutral[900], night.hero),
+  heroForeground: pair(palette.neutral[0], palette.neutral[0]),
   /** 10.9:1 sobre heroSurface. */
-  heroSecondary: palette.neutral[300],
+  heroSecondary: pair(palette.neutral[300], palette.neutral[300]),
   /** 6.8:1 sobre heroSurface (AA). */
-  heroMuted: palette.neutral[400],
-  heroBorder: "rgba(255, 255, 255, 0.14)",
-  heroPressed: "rgba(255, 255, 255, 0.08)",
+  heroMuted: pair(palette.neutral[400], palette.neutral[400]),
+  heroBorder: pair("rgba(255, 255, 255, 0.14)", "rgba(255, 255, 255, 0.12)"),
+  heroPressed: pair("rgba(255, 255, 255, 0.08)", "rgba(255, 255, 255, 0.08)"),
   /** Laranja claro para texto/ação sobre o escuro (o `primaryText` some ali). */
-  heroAccent: palette.brand[200],
-  heroSuccess: palette.success[100],
+  heroAccent: pair(palette.brand[200], palette.brand[200]),
+  heroSuccess: pair(palette.success[100], palette.success[100]),
 
-  success: palette.success[700],
-  successSoft: palette.success[50],
-  warning: palette.warning[700],
-  warningSoft: palette.warning[50],
-  warningStrong: palette.warning[500],
-  danger: palette.danger[600],
-  dangerPressed: palette.danger[700],
-  dangerSoft: palette.danger[50],
-  info: palette.info[700],
-  infoSoft: palette.info[50],
+  success: pair(palette.success[700], "#5CCB86"),
+  successSoft: pair(palette.success[50], "#10281A"),
+  warning: pair(palette.warning[700], "#F2B45A"),
+  warningSoft: pair(palette.warning[50], "#2E2210"),
+  warningStrong: pair(palette.warning[500], palette.warning[500]),
+  danger: pair(palette.danger[600], "#E0405F"),
+  dangerPressed: pair(palette.danger[700], "#B8284A"),
+  dangerSoft: pair(palette.danger[50], "#3A1419"),
+  info: pair(palette.info[700], "#7DB8F5"),
+  infoSoft: pair(palette.info[50], "#10233A"),
+} as const satisfies Record<string, ColorValue>;
+
+/** Cores fixas para o que precisa ser sempre igual (QR code: preto no branco). */
+export const fixed = { ink: palette.neutral[950], paper: palette.neutral[0], brand: palette.brand[600] } as const;
+
+/** Para APIs nativas que só aceitam texto de cor (ex.: botão de colar do iOS). */
+export const solid = {
+  light: { muted: palette.neutral[150], foreground: palette.neutral[900], background: palette.neutral[100], primary: palette.brand[600] },
+  dark: { muted: night.muted, foreground: palette.neutral[50], background: night.bg, primary: "#FF936F" },
 } as const;
 
 /** Grade de 4px (briefing §43). Só estes valores. */

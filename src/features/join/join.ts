@@ -45,6 +45,23 @@ export function parseInviteLink(text: string): { code: string; invite: string | 
   }
 }
 
+/**
+ * O que veio da área de transferência: a mensagem de convite inteira (com o
+ * link), só o link ou só o código ("K7M-4QX"). null = nada aproveitável.
+ */
+export function codeFromClipboard(text: string): { code: string; invite: string | null } | null {
+  const link = /(https?|servos):\/\/\S+/i.exec(text);
+  if (link) {
+    const parsed = parseInviteLink(link[0]);
+    if (parsed) return parsed;
+  }
+  for (const m of text.toUpperCase().matchAll(/(?:^|[^A-Z0-9])([A-Z0-9]{3})[-\s]?([A-Z0-9]{3})(?![A-Z0-9])/g)) {
+    const code = m[1] + m[2];
+    if (isCompleteCode(code)) return { code, invite: null };
+  }
+  return null;
+}
+
 export function pendingHeadline(p: { churchName: string; invitedByName: string | null }): { title: string; body: string } {
   const church = p.churchName || "a igreja";
   const who = p.invitedByName ? `${p.invitedByName.split(" ")[0]} ou a liderança da ${church}` : `a liderança da ${church}`;

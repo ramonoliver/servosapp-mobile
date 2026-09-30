@@ -11,7 +11,8 @@ import { Card } from "@/components/ui/Card";
 import { CheckCircleIcon, UsersThreeIcon } from "@/components/ui/icons";
 import { Text } from "@/components/ui/Text";
 import { TextField } from "@/components/ui/TextField";
-import { codeProblem, isCompleteCode, maskCode, normalizeCode, parseInviteLink } from "@/features/join/join";
+import { PasteCodeButton } from "@/components/join/PasteCodeButton";
+import { codeFromClipboard, codeProblem, isCompleteCode, maskCode, normalizeCode, parseInviteLink } from "@/features/join/join";
 import { color, gutter, radius, space } from "@/theme/tokens";
 import { track } from "@/lib/analytics";
 
@@ -73,6 +74,17 @@ export default function JoinScreen() {
     setCodeError(null);
   };
 
+  const onPaste = (text: string) => {
+    const found = codeFromClipboard(text);
+    if (!found) {
+      setCodeError("Não achamos um código no que você copiou. Digite as 6 letras e números.");
+      return;
+    }
+    setCode(maskCode(found.code));
+    setInvite(found.invite);
+    void check(found.code, found.invite);
+  };
+
   const reset = () => {
     setManual(null);
     setDismissedLink(true);
@@ -110,6 +122,7 @@ export default function JoinScreen() {
               hint="São 6 letras e números. Pode colar o link do convite aqui."
               style={styles.codeInput}
             />
+            <PasteCodeButton onPaste={onPaste} />
             <Button label="Continuar" size="lg" fullWidth loading={checking || auto.isFetching} onPress={() => void check(code, invite)} />
           </>
         ) : (

@@ -14,6 +14,11 @@ import type {
   JoinRequestView,
   InviteInfo,
   MeProfile,
+  ChatMessage,
+  SetlistEntry,
+  ScheduleFile,
+  Song,
+  MyChurch,
   MinistryReport,
   ScheduleHistoryItem,
 } from "./contracts";
@@ -40,6 +45,7 @@ export type FunctionAction =
 
 export interface SessionUser {
   id: string;
+  church_id?: string;
   name: string;
   email: string;
   photo_url: string | null;
@@ -95,6 +101,35 @@ export const endpoints = {
   uploadPhoto: (file: { uri: string }) => apiUpload<{ url: string }>("/profile/upload-photo", file),
   changePassword: (currentPassword: string, newPassword: string) =>
     api<{ success: boolean }>("/profile/change-password", { method: "POST", body: { currentPassword, newPassword, confirmPassword: newPassword } }),
+  // Conversa · músicas · arquivos da escala
+  scheduleChat: (scheduleId: string) => api<{ items: ChatMessage[]; readOnly: boolean }>(`/mobile/schedules/${enc(scheduleId)}/chat`),
+  sendChat: (scheduleId: string, text: string) =>
+    api<{ items: ChatMessage[] }>(`/mobile/schedules/${enc(scheduleId)}/chat`, { method: "POST", body: { text } }),
+  scheduleSongs: (scheduleId: string) => api<{ items: SetlistEntry[]; canEdit: boolean }>(`/mobile/schedules/${enc(scheduleId)}/songs`),
+  saveScheduleSongs: (scheduleId: string, items: { songId: string; key: string }[]) =>
+    api<{ items: SetlistEntry[]; canEdit: boolean }>(`/mobile/schedules/${enc(scheduleId)}/songs`, { method: "PUT", body: { items } }),
+  scheduleFiles: (scheduleId: string) => api<{ files: ScheduleFile[] }>(`/schedules/files?scheduleId=${enc(scheduleId)}`),
+  uploadScheduleFile: (scheduleId: string, file: { uri: string }) =>
+    apiUpload<{ file: ScheduleFile }>("/schedules/files", file, { scheduleId }),
+
+  // Repertório
+  songs: () => api<{ songs: Song[] }>("/songs"),
+  createSong: (song: Omit<Song, "id" | "times_used" | "last_used">) => api<{ success: boolean }>("/songs", { method: "POST", body: { song } }),
+  deleteSong: (songId: string) => api<{ success: boolean }>(`/songs?songId=${enc(songId)}`, { method: "DELETE" }),
+
+  // Evento (mesma rota do web)
+  createEvent: (data: { name: string; type: "recurring" | "special"; icon: string; location: string; base_time: string; recurrence: string; description?: string }) =>
+    api<{ success: boolean; id: string }>("/events/manage", { method: "POST", body: { mode: "create", data: { status: "publicado", ...data } } }),
+
+  // Multi-igreja
+  myChurches: () => api<{ items: MyChurch[] }>("/mobile/churches"),
+  switchChurch: (churchId: string) => api<AuthResponse>("/mobile/churches", { method: "POST", body: { action: "switch", churchId } }),
+  joinAnotherChurch: (code: string, invite?: string | null) =>
+    api<{ status: "pending" | "approved"; church: { id: string; name: string }; items: MyChurch[] }>("/mobile/churches", {
+      method: "POST",
+      body: { action: "join", code, invite: invite ?? null },
+    }),
+
   analytics: (body: { events: unknown[]; platform: string; appVersion: string }) =>
     api<{ accepted: number }>("/mobile/analytics", { method: "POST", body }),
   schedules: (scope: "upcoming" | "past", cursor?: string | null) =>

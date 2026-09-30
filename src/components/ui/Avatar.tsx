@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, type ColorValue } from "react-native";
 import { color } from "@/theme/tokens";
 import { Text } from "./Text";
 
@@ -12,7 +12,7 @@ export function initials(name: string): string {
 }
 
 /** Cor de fundo legível para as iniciais (texto branco) a partir da cor do perfil. */
-function avatarBg(hex: string | null | undefined): string {
+function avatarBg(hex: string | null | undefined): ColorValue {
   return /^#[0-9a-f]{6}$/i.test(String(hex)) ? String(hex) : color.foregroundSecondary;
 }
 

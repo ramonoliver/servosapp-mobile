@@ -87,8 +87,9 @@ export async function api<T>(
  * `{ uri, name, type }` do React Native no FormData: o arquivo vai como
  * `File` do expo-file-system (que é um Blob de verdade).
  */
-export async function apiUpload<T>(path: string, file: { uri: string }): Promise<T> {
+export async function apiUpload<T>(path: string, file: { uri: string; name?: string; type?: string }, fields: Record<string, string> = {}): Promise<T> {
   const form = new FormData();
+  for (const [k, v] of Object.entries(fields)) form.append(k, v);
   // O `expo/fetch` lê bytes, nome e tipo do `File` (que implementa Blob).
   form.append("file", new File(file.uri) as unknown as Blob);
   let res: Response;

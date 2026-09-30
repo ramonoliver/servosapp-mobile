@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, type ColorValue } from "react-native";
 import type { HistoryTone } from "@/api/contracts";
 import { endpoints } from "@/api/endpoints";
 import { ClockCounterClockwiseIcon } from "@/components/ui/icons";
@@ -13,7 +13,7 @@ import { errorText } from "@/features/leader/queries";
 import { churchToday } from "@/features/schedules/format";
 import { color, radius, space } from "@/theme/tokens";
 
-const DOT: Record<HistoryTone, string> = {
+const DOT: Record<HistoryTone, ColorValue> = {
   neutral: color.borderStrong,
   success: color.success,
   warning: color.warningStrong,

@@ -70,7 +70,7 @@ const state = {
       ],
     },
     {
-      id: "s5", ministry: { id: "louvor", name: "Louvor", color: null, icon: null }, eventName: "Culto das 18h", date: sunday, time: "17:00", arrivalTime: "16:30",
+      id: "s5", ministry: { id: "louvor", name: "Louvor", color: null, icon: null, kind: "louvor" }, eventName: "Culto das 18h", date: sunday, time: "17:00", arrivalTime: "16:30",
       location: "Templo principal", instructions: "", status: "PUBLISHED", version: 1, slots: [{ fn: "Vocal", n: 2 }],
       members: [{ id: "e1", user: "rafa", fn: "Vocal", status: "ACCEPTED" }],
     },
@@ -89,7 +89,7 @@ const state = {
   sessions: new Map(),
 };
 
-const leadership = { prod: ["ramon", "fer"], rec: ["lucas"] };
+const leadership = { prod: ["ramon", "fer"], rec: ["lucas"], louvor: ["ramon"] };
 const leadersOf = (m) => leadership[m.id];
 const ministries = { prod: PROD, rec: REC };
 // Vínculos: quem está em qual ministério e com quais funções.
@@ -171,6 +171,124 @@ function reportFor(ministryId, days) {
   };
 }
 
+// ── Conversa, músicas, arquivos, eventos e multi-igreja ──────────────────────
+// Outras igrejas: Nova Vida (Ramon já faz parte) e Esperança (para testar o pedido).
+const OTHER_CHURCHES = {
+  P2R8TZ: { id: "igreja-nova", name: "Igreja Nova Vida", city: "Valinhos", code: "P2R8TZ" },
+  H3W9KD: { id: "comunidade", name: "Comunidade Esperança", city: "Campinas", code: "H3W9KD" },
+};
+const extras = {
+  chats: {
+    s1: [
+      { id: "m1", authorId: "fer", fromLeader: true, text: "Pessoal, domingo teremos batismo. Câmera 2 fica na lateral esquerda.", createdAt: ago(20) },
+      { id: "m2", authorId: "joao", fromLeader: false, text: "Combinado! Levo o tripé extra.", createdAt: ago(18) },
+    ],
+  },
+  songs: [
+    { id: "sg1", title: "Grande é o Senhor", artist: "Adhemar de Campos", key: "G", bpm: 72, theme: "Adoração", lyrics_url: "", chords_url: "https://www.cifraclub.com.br", video_url: "https://www.youtube.com", notes: "", department_id: null, times_used: 12 },
+    { id: "sg2", title: "Aclame ao Senhor", artist: "Diante do Trono", key: "A", bpm: 128, theme: "Louvor", lyrics_url: "", chords_url: "", video_url: "https://www.youtube.com", notes: "", department_id: null, times_used: 8 },
+    { id: "sg3", title: "Santo Espírito", artist: "Laura Souguellis", key: "D", bpm: 68, theme: "Adoração", lyrics_url: "", chords_url: "https://www.cifraclub.com.br", video_url: "", notes: "", department_id: null, times_used: 5 },
+    { id: "sg4", title: "Ceia do Senhor", artist: "", key: "E", bpm: null, theme: "Ceia", lyrics_url: "", chords_url: "", video_url: "", notes: "", department_id: null, times_used: 2 },
+    { id: "sg5", title: "Ao Único", artist: "Aline Barros", key: "C", bpm: 76, theme: "Abertura", lyrics_url: "", chords_url: "", video_url: "", notes: "", department_id: null, times_used: 3 },
+  ],
+  setlists: { s5: [{ songId: "sg2", key: "" }, { songId: "sg1", key: "A" }] },
+  files: {
+    s1: [{ id: "fl1", scheduleId: "s1", name: "Roteiro do culto.pdf", size: 184320, contentType: "application/pdf", uploadedByName: "Fernanda Lima", createdAt: ago(30), url: "https://example.com/roteiro.pdf" }],
+  },
+  churches: [
+    { churchId: "igreja-central", churchName: "Igreja Central", status: "active" },
+    { churchId: "igreja-nova", churchName: "Igreja Nova Vida", status: "active" },
+  ],
+  // token → igreja da sessão
+  sessionChurch: new Map(),
+};
+function extraRoutes(req, url, path, body, uid, send) {
+  const token = String(req.headers["x-servos-auth"] || "");
+  const current = extras.sessionChurch.get(token) || "igreja-central";
+  let m;
+  if ((m = /^\/mobile\/schedules\/([^/]+)\/chat$/.exec(path))) {
+    const list = (extras.chats[m[1]] ||= []);
+    const s = state.schedules.find((x) => x.id === m[1]);
+    if (req.method === "POST") {
+      const text = String(body.text || "").trim();
+      if (!text) return send(400, { error: "Escreva a mensagem." });
+      list.push({ id: nid("m"), authorId: uid, fromLeader: Boolean(leadersOf(s.ministry)?.includes(uid)), text, createdAt: new Date().toISOString() });
+    }
+    const items = list.map((x) => ({
+      id: x.id, text: x.text, createdAt: x.createdAt, mine: x.authorId === uid, fromLeader: x.fromLeader,
+      author: { id: x.authorId, name: people[x.authorId].name, photoUrl: x.authorId === "ramon" ? me.photoUrl : null, avatarColor: people[x.authorId].avatarColor },
+    }));
+    return send(200, { items, readOnly: s?.status === "CANCELLED" });
+  }
+  if ((m = /^\/mobile\/schedules\/([^/]+)\/songs$/.exec(path))) {
+    const s = state.schedules.find((x) => x.id === m[1]);
+    const canEdit = Boolean(s && leadersOf(s.ministry)?.includes(uid));
+    if (req.method === "PUT") {
+      if (!canEdit) return send(403, { error: "Só a liderança monta a lista." });
+      extras.setlists[m[1]] = (body.items || []).map((i) => ({ songId: i.songId, key: String(i.key || "").slice(0, 6) }));
+    }
+    const items = (extras.setlists[m[1]] || [])
+      .map((e, i) => {
+        const song = extras.songs.find((x) => x.id === e.songId);
+        return song ? { position: i + 1, songId: song.id, title: song.title, artist: song.artist, key: e.key || song.key, originalKey: song.key, bpm: song.bpm, chordsUrl: song.chords_url || null, lyricsUrl: song.lyrics_url || null, videoUrl: song.video_url || null } : null;
+      })
+      .filter(Boolean);
+    return send(200, { items, canEdit });
+  }
+  if (path === "/schedules/files") {
+    const sid = url.searchParams.get("scheduleId") || body.scheduleId || /name="scheduleId"\r\n\r\n([^\r]+)/.exec(body.__raw || "")?.[1];
+    const list = (extras.files[sid] ||= []);
+    if (req.method === "POST") {
+      const fileName = /filename="([^"]+)"/.exec(body.__raw || "")?.[1] || `arquivo-${list.length + 1}`;
+      const type = /name="file"[^\r]*\r\nContent-Type: ([^\r]+)/.exec(body.__raw || "")?.[1] || "application/octet-stream";
+      list.push({ id: nid("fl"), scheduleId: sid, name: fileName, size: body.__size || 250000, contentType: type, uploadedByName: people[uid].name, createdAt: new Date().toISOString(), url: "https://example.com/arquivo" });
+      return send(200, { file: list[list.length - 1] });
+    }
+    return send(200, { files: list });
+  }
+  if (path === "/songs") {
+    if (req.method === "POST") {
+      const song = { ...body.song, id: nid("sg"), times_used: 0 };
+      extras.songs.push(song);
+      return send(200, { success: true });
+    }
+    if (req.method === "DELETE") {
+      extras.songs = extras.songs.filter((x) => x.id !== url.searchParams.get("songId"));
+      return send(200, { success: true });
+    }
+    return send(200, { songs: extras.songs });
+  }
+  if (path === "/events/manage" && req.method === "POST") {
+    if (!body.data?.name) return send(400, { error: "Dê um nome ao evento." });
+    return send(200, { success: true, id: nid("ev") });
+  }
+  if (path === "/mobile/churches") {
+    const list = () => extras.churches.map((c) => ({ ...c, current: c.churchId === current }));
+    if (req.method === "POST" && body.action === "switch") {
+      const c = extras.churches.find((x) => x.churchId === body.churchId);
+      if (!c) return send(403, { error: "Você não faz parte desta igreja.", code: "NOT_MEMBER" });
+      if (c.status !== "active") return send(409, { error: "Seu pedido nesta igreja ainda aguarda aprovação.", code: "PENDING_APPROVAL" });
+      const t = `mock-${Math.random().toString(36).slice(2)}`;
+      state.sessions.set(t, uid);
+      extras.sessionChurch.set(t, c.churchId);
+      return send(200, { success: true, token: t, user: { id: uid, church_id: c.churchId, name: people[uid].name, email: "lider@servos.dev", photo_url: me.photoUrl, avatar_color: people[uid].avatarColor } });
+    }
+    if (req.method === "POST" && body.action === "join") {
+      const code = String(body.code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      if (code === join.church.code) return send(409, { error: "Você já faz parte desta igreja.", code: "ALREADY_MEMBER" });
+      const other = OTHER_CHURCHES[code];
+      if (!other) return send(404, { error: "Não encontramos uma igreja com esse código.", code: "CODE_NOT_FOUND" });
+      const found = extras.churches.find((c) => c.churchId === other.id);
+      if (found?.status === "active") return send(409, { error: "Você já faz parte desta igreja.", code: "ALREADY_MEMBER" });
+      if (found) return send(409, { error: "Você já pediu para entrar nesta igreja. Aguarde a liderança.", code: "ALREADY_REQUESTED" });
+      extras.churches.push({ churchId: other.id, churchName: other.name, status: "pending" });
+      return send(200, { status: "pending", church: { id: other.id, name: other.name }, items: list() });
+    }
+    return send(200, { items: list() });
+  }
+  return false;
+}
+
 // ── Entrada na igreja (mesmas regras de lib/join no servidor) ───────────────
 const join = {
   church: { name: "Igreja Central", city: "Campinas", code: "K7M4QX" },
@@ -196,6 +314,7 @@ const pendingFor = (uid) => join.requests.filter((r) => r.status === "pending" &
 function joinPublic(req, url, path, body, send) {
   if (path === "/join/lookup") {
     const code = (url.searchParams.get("c") || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (OTHER_CHURCHES[code]) return send(200, { church: OTHER_CHURCHES[code], invite: null });
     if (code !== join.church.code) return send(404, { error: "Não encontramos uma igreja com esse código. Confira com quem convidou você.", code: "CODE_NOT_FOUND" });
     const token = url.searchParams.get("i");
     const inv = token ? join.invites[token] : null;
@@ -357,7 +476,7 @@ function overview(userId) {
     user: { id: u.id, name: u.name, firstName: u.name.split(" ")[0], photoUrl: null, avatarColor: u.avatarColor },
     next, pending: rest.filter((c) => c.needsResponse), upcoming: rest.filter((c) => !c.needsResponse).slice(0, 10), leader,
     unreadNotifications: state.notifications.filter((n) => !n.read).length,
-    access: { canInvite: true, canRegenerateCode: userId === "ramon" },
+    access: { canInvite: true, canRegenerateCode: userId === "ramon", canCreateEvents: true, canSeeRepertoire: true, canManageSongs: true },
     joinRequests: pendingFor(userId).length,
     generatedAt: new Date().toISOString(),
   };
@@ -590,7 +709,9 @@ const server = createServer(async (req, res) => {
   try {
     body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString() || "{}") : {};
   } catch {
-    body = {};
+    // Multipart: guarda o texto bruto para o mock achar campos e o nome do arquivo.
+    const raw = Buffer.concat(chunks);
+    body = { __raw: raw.toString("latin1").slice(0, 4000), __size: raw.length };
   }
   const send = (status, data) => {
     res.writeHead(status, { "Content-Type": "application/json" });
@@ -633,7 +754,8 @@ const server = createServer(async (req, res) => {
   if (path === "/auth/logout") return send(200, { success: true });
   if (!userId) return send(401, { error: "Sessao expirada. Entre novamente." });
 
-  if (path === "/auth/session") return send(200, { authenticated: true, token: req.headers["x-servos-auth"], user: { id: userId, name: people[userId].name, email: "lider@servos.dev", photo_url: null, avatar_color: people[userId].avatarColor, church_id: "igreja-central", role: "admin", derived: WEB_DERIVED } });
+  if (path === "/auth/session") return send(200, { authenticated: true, token: req.headers["x-servos-auth"], user: { id: userId, name: people[userId].name, email: "lider@servos.dev", photo_url: null, avatar_color: people[userId].avatarColor, church_id: extras.sessionChurch.get(authHeader) || "igreja-central", role: "admin", derived: WEB_DERIVED } });
+  if (extraRoutes(req, url, path, body, userId, send) !== false) return;
   if (path.startsWith("/mobile/") && !/^\/mobile\/(me|analytics)$|\/history$|\/report$/.test(path) && path !== "/mobile/overview" && path !== "/mobile/schedules" && !/^\/mobile\/schedules\/[^/]+$/.test(path) || (/^\/mobile\/schedules\/[^/]+$/.test(path) && req.method === "PATCH") || (path === "/mobile/schedules" && req.method === "POST")) {
     const handled = path.startsWith("/mobile/join/") ? joinLeader(req, url, path, body, userId, send) : await p1(req, url, path, body, userId, send);
     if (handled !== false) return;

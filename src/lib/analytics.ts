@@ -28,7 +28,15 @@ export type AnalyticsEvent =
   | "notification_opened"
   | "report_viewed"
   | "calendar_viewed"
-  | "profile_updated";
+  | "profile_updated"
+  | "chat_message_sent"
+  | "setlist_saved"
+  | "file_attached"
+  | "calendar_saved"
+  | "event_created"
+  | "song_created"
+  | "church_switched"
+  | "church_join_requested";
 
 type Props = Record<string, string | number | boolean>;
 interface Queued {

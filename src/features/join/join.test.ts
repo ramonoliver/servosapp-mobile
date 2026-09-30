@@ -1,4 +1,4 @@
-import { codeProblem, isCompleteCode, maskCode, normalizeCode, parseInviteLink, pendingHeadline, requestSubtitle, sinceLabel } from "./join";
+import { codeFromClipboard, codeProblem, isCompleteCode, maskCode, normalizeCode, parseInviteLink, pendingHeadline, requestSubtitle, sinceLabel } from "./join";
 
 describe("código da igreja", () => {
   it("máscara e normalização", () => {
@@ -43,5 +43,19 @@ describe("espera e pedidos", () => {
     expect(requestSubtitle({ invitedByName: null, ministryName: null, createdAt: "2026-09-29T09:00:00Z" }, now)).toBe(
       "Pelo código da igreja · há 3 h",
     );
+  });
+});
+
+describe("colar código", () => {
+  it("acha o link dentro da mensagem de convite", () => {
+    expect(codeFromClipboard("Entre na Igreja Viva no Servos: https://servosapp.com/entrar?c=K7M4QX&i=tok9 — código K7M-4QX")).toEqual({ code: "K7M4QX", invite: "tok9" });
+  });
+  it("aceita só o código, com ou sem traço", () => {
+    expect(codeFromClipboard("k7m-4qx")).toEqual({ code: "K7M4QX", invite: null });
+    expect(codeFromClipboard("Código da igreja: K7M 4QX")).toEqual({ code: "K7M4QX", invite: null });
+  });
+  it("ignora texto sem código válido", () => {
+    expect(codeFromClipboard("bom dia a todos")).toBeNull();
+    expect(codeFromClipboard("ABC-100")).toBeNull();
   });
 });

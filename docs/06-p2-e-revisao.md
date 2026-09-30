@@ -44,6 +44,8 @@ No SDK 57 o `fetch` global é o `expo/fetch`, que **não aceita** o formato `{ u
 
 ## Multi-igreja real: não implementado, e por quê
 
+> **Atualização (2026-09-30):** implementado de outra forma, sem migração: um perfil por igreja ligado à mesma conta de login. Ver `07-funcoes-novas.md`. A proposta abaixo fica como histórico.
+
 Hoje cada pessoa tem **um** documento em `users`, com `church_id`, papel, célula e disponibilidade. O e-mail é único no Firebase Auth. Para uma pessoa estar em duas igrejas é preciso separar **identidade** (login, nome, foto) de **vínculo com a igreja** (papel, status, ministérios, célula). Isso mexe no modelo que o web usa em produção, em todas as rotas que leem `users.church_id`.
 
 Proposta, para decidir antes de fazer:

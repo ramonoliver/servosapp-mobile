@@ -7,6 +7,7 @@ import { useSession } from "@/auth/session";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card, PressableCard } from "@/components/ui/Card";
 import { BellIcon, CalendarBlankIcon, CaretRightIcon, QuestionIcon, SignOutIcon, UserPlusIcon, UsersThreeIcon } from "@/components/ui/icons";
+import { ChurchSwitcher } from "@/components/profile/ChurchSwitcher";
 import { useOverview } from "@/features/schedules/queries";
 import { ListRow, RowDivider } from "@/components/ui/ListRow";
 import { Screen, ScreenTitle, SectionHeader } from "@/components/ui/Screen";
@@ -100,6 +101,8 @@ export default function ProfileScreen() {
           />
         </Card>
       ) : null}
+
+      <ChurchSwitcher />
 
       <Card padded={false}>
         <ListRow icon={SignOutIcon} title="Sair" destructive onPress={confirmSignOut} />

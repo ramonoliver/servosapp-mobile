@@ -5,8 +5,8 @@ import { ApiError, setApiToken, setUnauthorizedHandler } from "@/api/client";
 import { endpoints, type AuthResponse, type JoinOutcome, type SessionUser } from "@/api/endpoints";
 import { queryClient, clearPersistedCache } from "@/lib/query";
 import { unregisterPushOnLogout } from "@/lib/push";
+import { TOKEN_KEY } from "@/lib/savedSession";
 
-const TOKEN_KEY = "servos.session";
 const USER_KEY = "servos.user";
 const JOIN_KEY = "servos.join";
 
@@ -39,6 +39,8 @@ interface SessionState {
   refreshPending: () => Promise<JoinOutcome["status"] | null>;
   /** Desiste de esperar neste aparelho (volta ao login). */
   leavePending: () => Promise<void>;
+  /** Multi-igreja: troca a sessão para o perfil da pessoa em outra igreja. */
+  switchChurch: (churchId: string) => Promise<void>;
 }
 
 const SessionContext = createContext<SessionState | null>(null);
@@ -229,12 +231,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, [pending, enter, savePending]);
 
+  // Os dados em cache são da igreja anterior: some tudo antes de entrar na
+  // nova sessão, para nenhuma tela mostrar escala da outra igreja.
+  const switchChurch = useCallback(
+    async (churchId: string) => {
+      const res = await endpoints.switchChurch(churchId);
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await clearPersistedCache();
+      await enter(res);
+    },
+    [enter],
+  );
+
   const value = useMemo(
     () => ({
       status, user, signedOutReason, pending,
-      signIn, signInWithCode, signInWithGoogle, updateUser, signOut, finishSignup, refreshPending, leavePending,
+      signIn, signInWithCode, signInWithGoogle, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch,
     }),
-    [status, user, signedOutReason, pending, signIn, signInWithCode, signInWithGoogle, updateUser, signOut, finishSignup, refreshPending, leavePending],
+    [status, user, signedOutReason, pending, signIn, signInWithCode, signInWithGoogle, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

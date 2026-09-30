@@ -11,7 +11,7 @@ import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AppState } from "react-native";
+import { AppState, useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider, useSession } from "@/auth/session";
 import { AnimatedSplash } from "@/components/brand/AnimatedSplash";
@@ -20,9 +20,9 @@ import { IntroProvider, useIntro } from "@/lib/intro";
 import { ToastProvider } from "@/components/ui/Toast";
 import { appRouteForUrl } from "@/lib/links";
 import { OnboardingProvider, useOnboarding } from "@/lib/onboarding";
-import { configureNotifications, registerDevice, urlFromNotification } from "@/lib/push";
+import { churchOfNotification, configureNotifications, registerDevice, urlFromNotification } from "@/lib/push";
 import { persister, queryClient } from "@/lib/query";
-import { color, font } from "@/theme/tokens";
+import { color, font, solid } from "@/theme/tokens";
 
 void SplashScreen.preventAutoHideAsync();
 configureNotifications();
@@ -45,7 +45,7 @@ export default function RootLayout() {
       >
         <SessionProvider>
           <ToastProvider>
-            <StatusBar style="dark" />
+            <StatusBar style="auto" />
             <IntroProvider>
               <RootNavigator ready={fontsLoaded || Boolean(fontError)} onSettled={onSettled} />
             </IntroProvider>
@@ -94,6 +94,8 @@ function Navigator({
   }, [settled, onSettled]);
 
   const inApp = signedIn && onboarding.state === "done";
+  // Cabeçalho nativo não resolve cor dinâmica: passa o tom do esquema atual.
+  const tone = solid[useColorScheme() === "dark" ? "dark" : "light"];
   usePushWiring(inApp);
 
   if (!settled) return null;
@@ -103,9 +105,9 @@ function Navigator({
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: color.background },
-        headerStyle: { backgroundColor: color.background },
-        headerTintColor: color.primary,
-        headerTitleStyle: { fontFamily: font.semibold, color: color.foreground },
+        headerStyle: { backgroundColor: tone.background },
+        headerTintColor: tone.primary,
+        headerTitleStyle: { fontFamily: font.semibold, color: tone.foreground },
         headerShadowVisible: false,
         headerBackButtonDisplayMode: "minimal",
       }}
@@ -124,6 +126,12 @@ function Navigator({
         <Stack.Screen name="meus-dados" options={{ headerShown: true, title: "Meus dados" }} />
         <Stack.Screen name="historico/[id]" options={{ headerShown: true, title: "Histórico da escala" }} />
         <Stack.Screen name="relatorio/[id]" options={{ headerShown: true, title: "Relatório da equipe" }} />
+        <Stack.Screen name="conversa/[id]" options={{ headerShown: true, title: "Conversa da escala" }} />
+        <Stack.Screen name="musicas/[id]" options={{ headerShown: true, title: "Músicas da escala", presentation: "modal" }} />
+        <Stack.Screen name="repertorio" options={{ headerShown: true, title: "Repertório" }} />
+        <Stack.Screen name="nova-musica" options={{ headerShown: true, title: "Nova música", presentation: "modal" }} />
+        <Stack.Screen name="novo-evento" options={{ headerShown: true, title: "Novo evento", presentation: "modal" }} />
+        <Stack.Screen name="outra-igreja" options={{ headerShown: true, title: "Entrar em outra igreja", presentation: "modal" }} />
       </Stack.Protected>
       <Stack.Protected guard={status === "pending"}>
         <Stack.Screen name="aguardando" />
@@ -161,12 +169,22 @@ function usePushWiring(enabled: boolean) {
     return () => sub.remove();
   }, [enabled]);
 
+  const { user, switchChurch } = useSession();
   useEffect(() => {
     if (!enabled || !lastResponse) return;
     const id = lastResponse.notification.request.identifier;
     if (handled.current === id) return;
     handled.current = id;
     track("notification_opened");
-    router.push(appRouteForUrl(urlFromNotification(lastResponse.notification)));
-  }, [enabled, lastResponse]);
+    const target = appRouteForUrl(urlFromNotification(lastResponse.notification));
+    // Multi-igreja: aviso de outra igreja troca a igreja antes de abrir.
+    const churchId = churchOfNotification(lastResponse.notification);
+    if (churchId && user?.church_id && churchId !== user.church_id) {
+      void switchChurch(churchId)
+        .then(() => router.push(target))
+        .catch(() => router.push("/notificacoes"));
+      return;
+    }
+    router.push(target);
+  }, [enabled, lastResponse, user?.church_id, switchChurch]);
 }

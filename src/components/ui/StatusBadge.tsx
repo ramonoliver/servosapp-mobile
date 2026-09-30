@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, type ColorValue } from "react-native";
 import type { StatusIcon, Tone } from "@/features/schedules/status";
 import { color, font, radius, space } from "@/theme/tokens";
 import {
@@ -12,7 +12,7 @@ import {
 } from "./icons";
 import { Text } from "./Text";
 
-export const TONES: Record<Tone, { bg: string; fg: keyof typeof color }> = {
+export const TONES: Record<Tone, { bg: ColorValue; fg: keyof typeof color }> = {
   success: { bg: color.successSoft, fg: "success" },
   warning: { bg: color.warningSoft, fg: "warning" },
   danger: { bg: color.dangerSoft, fg: "danger" },
