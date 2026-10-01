@@ -41,7 +41,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       pushConfigured: { android, ios },
       google: google ? { webClientId: GOOGLE_WEB_CLIENT_ID, iosClientId: GOOGLE_IOS_CLIENT_ID, firebaseApiKey: FIREBASE_API_KEY } : null,
       // Entrar com Apple só precisa da chave pública do Firebase.
-      firebaseApiKey: FIREBASE_API_KEY || null,
+      firebaseApiKey: FIREBASE_API_KEY,
     },
   };
 };

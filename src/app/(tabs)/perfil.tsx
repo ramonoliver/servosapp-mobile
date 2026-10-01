@@ -6,7 +6,7 @@ import { Alert, StyleSheet, View } from "react-native";
 import { useSession } from "@/auth/session";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card, PressableCard } from "@/components/ui/Card";
-import { BellIcon, CalendarBlankIcon, CaretRightIcon, QuestionIcon, SignOutIcon, UserPlusIcon, UsersThreeIcon } from "@/components/ui/icons";
+import { BellIcon, CalendarBlankIcon, CaretRightIcon, QuestionIcon, SignOutIcon, TrashIcon, UserPlusIcon, UsersThreeIcon } from "@/components/ui/icons";
 import { ChurchSwitcher } from "@/components/profile/ChurchSwitcher";
 import { useOverview } from "@/features/schedules/queries";
 import { ListRow, RowDivider } from "@/components/ui/ListRow";
@@ -106,6 +106,8 @@ export default function ProfileScreen() {
 
       <Card padded={false}>
         <ListRow icon={SignOutIcon} title="Sair" destructive onPress={confirmSignOut} />
+        <RowDivider />
+        <ListRow icon={TrashIcon} title="Excluir minha conta" destructive onPress={() => router.push("/excluir-conta")} />
       </Card>
 
       <Text variant="caption" color="mutedForeground" align="center">

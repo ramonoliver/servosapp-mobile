@@ -35,13 +35,18 @@ function extra() {
   return (Constants.expoConfig?.extra ?? {}) as { google?: GoogleConfig | null; firebaseApiKey?: string };
 }
 
+// O manifesto do Expo pode trocar `null` por `{}`: só vale texto não vazio.
+const text = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
+
 export function googleConfig(): GoogleConfig | null {
   const g = extra().google;
-  return g?.webClientId && g.firebaseApiKey ? g : null;
+  const webClientId = text(g?.webClientId);
+  const firebaseApiKey = text(g?.firebaseApiKey);
+  return webClientId && firebaseApiKey ? { webClientId, iosClientId: text(g?.iosClientId) ?? "", firebaseApiKey } : null;
 }
 
 function firebaseApiKey(): string | null {
-  return extra().firebaseApiKey || extra().google?.firebaseApiKey || null;
+  return text(extra().firebaseApiKey) ?? text(extra().google?.firebaseApiKey);
 }
 
 /** Apple só no iPhone, com a chave do Firebase e o recurso disponível no aparelho. */

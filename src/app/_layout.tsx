@@ -132,6 +132,7 @@ function Navigator({
         <Stack.Screen name="nova-musica" options={{ headerShown: true, title: "Nova música", presentation: "modal" }} />
         <Stack.Screen name="novo-evento" options={{ headerShown: true, title: "Novo evento", presentation: "modal" }} />
         <Stack.Screen name="outra-igreja" options={{ headerShown: true, title: "Entrar em outra igreja", presentation: "modal" }} />
+        <Stack.Screen name="excluir-conta" options={{ headerShown: true, title: "Excluir conta", presentation: "modal" }} />
       </Stack.Protected>
       <Stack.Protected guard={status === "pending"}>
         <Stack.Screen name="aguardando" />

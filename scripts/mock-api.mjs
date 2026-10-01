@@ -808,6 +808,11 @@ const server = createServer(async (req, res) => {
     found.m.reconfirm = false;
     return send(200, { success: true, changed: true });
   }
+  if (path === "/mobile/me" && req.method === "DELETE") {
+    if (body.confirm !== "EXCLUIR") return send(400, { error: "Confirme a exclusão digitando EXCLUIR." });
+    state.sessions.delete(authHeader);
+    return send(200, { success: true });
+  }
   if (path === "/mobile/me") return send(200, { ...me, name: people.ramon.name });
   if (path === "/profile/update") {
     if (body.name) people.ramon.name = body.name;
