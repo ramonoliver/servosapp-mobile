@@ -1,4 +1,4 @@
-import { codeFromClipboard, codeProblem, isCompleteCode, maskCode, normalizeCode, parseInviteLink, pendingHeadline, requestSubtitle, sinceLabel } from "./join";
+import { socialSignupName, codeFromClipboard, codeProblem, isCompleteCode, maskCode, normalizeCode, parseInviteLink, pendingHeadline, requestSubtitle, sinceLabel } from "./join";
 
 describe("código da igreja", () => {
   it("máscara e normalização", () => {
@@ -57,5 +57,19 @@ describe("colar código", () => {
   it("ignora texto sem código válido", () => {
     expect(codeFromClipboard("bom dia a todos")).toBeNull();
     expect(codeFromClipboard("ABC-100")).toBeNull();
+  });
+});
+
+describe("nome no cadastro com Apple/Google", () => {
+  it("prefere o nome completo digitado", () => {
+    expect(socialSignupName("Ana  Paula Souza", "Ana P.")).toBe("Ana Paula Souza");
+  });
+  it("sem nome digitado, usa o da conta", () => {
+    expect(socialSignupName("", "Mariana Alves")).toBe("Mariana Alves");
+    expect(socialSignupName("Ana", "Ana Souza")).toBe("Ana Souza");
+  });
+  it("sem nome e sobrenome em nenhum dos dois, pede", () => {
+    expect(socialSignupName("", null)).toBeNull();
+    expect(socialSignupName("Ana", "Ana")).toBeNull();
   });
 });

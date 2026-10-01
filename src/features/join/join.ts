@@ -62,6 +62,16 @@ export function codeFromClipboard(text: string): { code: string; invite: string 
   return null;
 }
 
+/**
+ * Nome do cadastro com Apple/Google: o que a pessoa digitou (se já tem nome
+ * e sobrenome) ou o da conta. null = falta pedir. A Apple só manda o nome no
+ * primeiro login no app; o Google sempre manda.
+ */
+export function socialSignupName(typed: string, fromProvider: string | null): string | null {
+  const full = (s: string | null) => (s && s.trim().split(/\s+/).length >= 2 ? s.trim().replace(/\s+/g, " ") : null);
+  return full(typed) ?? full(fromProvider);
+}
+
 export function pendingHeadline(p: { churchName: string; invitedByName: string | null }): { title: string; body: string } {
   const church = p.churchName || "a igreja";
   const who = p.invitedByName ? `${p.invitedByName.split(" ")[0]} ou a liderança da ${church}` : `a liderança da ${church}`;

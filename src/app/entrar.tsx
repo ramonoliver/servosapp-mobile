@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { ApiError } from "@/api/client";
 import type { JoinLookup } from "@/api/contracts";
 import { endpoints } from "@/api/endpoints";
@@ -11,8 +11,10 @@ import { Card } from "@/components/ui/Card";
 import { CheckCircleIcon, UsersThreeIcon } from "@/components/ui/icons";
 import { Text } from "@/components/ui/Text";
 import { TextField } from "@/components/ui/TextField";
+import { SocialButtons, useSocialProviders } from "@/components/auth/SocialButtons";
 import { PasteCodeButton } from "@/components/join/PasteCodeButton";
-import { codeFromClipboard, codeProblem, isCompleteCode, maskCode, normalizeCode, parseInviteLink } from "@/features/join/join";
+import { codeFromClipboard, codeProblem, isCompleteCode, maskCode, normalizeCode, parseInviteLink, socialSignupName } from "@/features/join/join";
+import type { SocialCredential } from "@/lib/socialAuth";
 import { color, gutter, radius, space } from "@/theme/tokens";
 import { track } from "@/lib/analytics";
 
@@ -145,6 +147,30 @@ function SignupForm({ lookup, invite, onChangeChurch }: { lookup: JoinLookup; in
   const phoneRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const preapproved = lookup.invite?.kind === "person";
+  const providers = useSocialProviders();
+  const hasSocial = providers.google || providers.apple === true;
+
+  // Apple/Google: a conta de login vem do provedor — sem senha, e-mail
+  // confirmado por ele. Só falta o nome, se a conta não mandou.
+  const socialSignup = async (credential: SocialCredential) => {
+    let fullName = socialSignupName(name, credential.name);
+    if (!fullName) fullName = await askFullName(credential.name ?? name);
+    if (!fullName) {
+      setFormError("Informe nome e sobrenome no campo Nome completo e toque de novo.");
+      return;
+    }
+    setSending(true);
+    setFormError(null);
+    try {
+      const outcome = await endpoints.joinSignup({ code: lookup.church.code, invite, name: fullName, phone: phone.trim(), idToken: credential.idToken });
+      track("signup_submitted", { via: invite ? lookup.invite?.kind ?? "link" : "code", status: outcome.status, method: credential.provider });
+      await finishSignup(outcome);
+    } catch (e) {
+      setFormError(e instanceof ApiError ? e.message : "Não foi possível concluir o cadastro. Tente novamente.");
+    } finally {
+      setSending(false);
+    }
+  };
 
   const submit = async () => {
     if (sending) return;
@@ -187,6 +213,19 @@ function SignupForm({ lookup, invite, onChangeChurch }: { lookup: JoinLookup; in
         </View>
         <Button label="Trocar" variant="ghost" onPress={onChangeChurch} />
       </Card>
+
+      {hasSocial ? (
+        <>
+          <SocialButtons onCredential={socialSignup} onError={setFormError} disabled={sending} />
+          <View style={styles.divider} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            <View style={styles.rule} />
+            <Text variant="caption" color="mutedForeground">
+              ou com e-mail e senha
+            </Text>
+            <View style={styles.rule} />
+          </View>
+        </>
+      ) : null}
 
       <View style={styles.form}>
         <TextField
@@ -268,4 +307,23 @@ const styles = StyleSheet.create({
   },
   form: { gap: space[4] },
   notice: { flexDirection: "row", alignItems: "center", gap: space[2] },
+  divider: { flexDirection: "row", alignItems: "center", gap: space[3] },
+  rule: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: color.borderStrong },
 });
+
+/** A Apple só manda o nome no primeiro login: pergunta (só existe no iOS, onde a Apple aparece). */
+function askFullName(suggestion: string): Promise<string | null> {
+  if (Platform.OS !== "ios") return Promise.resolve(null);
+  return new Promise((resolve) => {
+    Alert.prompt(
+      "Qual é o seu nome?",
+      "Nome e sobrenome, como a liderança conhece você.",
+      [
+        { text: "Cancelar", style: "cancel", onPress: () => resolve(null) },
+        { text: "Continuar", onPress: (value?: string) => resolve(socialSignupName(value ?? "", null)) },
+      ],
+      "plain-text",
+      suggestion,
+    );
+  });
+}

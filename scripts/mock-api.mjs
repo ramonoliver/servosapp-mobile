@@ -333,6 +333,7 @@ function joinPublic(req, url, path, body, send) {
   }
   if (path === "/join/signup" && req.method === "POST") {
     if (String(body.code).toUpperCase().replace(/[^A-Z0-9]/g, "") !== join.church.code) return send(404, { error: "Não encontramos uma igreja com esse código.", code: "CODE_NOT_FOUND" });
+    if (body.idToken) body.email = body.idToken === "mock-social-novo" ? "nova.pessoa@icloud.com" : "lider@servos.dev";
     if (/ramon|lider/i.test(body.email)) return send(409, { error: "Este e-mail já tem uma conta no Servos. Entre com ele.", code: "EMAIL_TAKEN" });
     const inv = body.invite ? join.invites[body.invite] : null;
     if (inv?.kind === "person") {
@@ -755,6 +756,13 @@ const server = createServer(async (req, res) => {
     const token = `mock-${Math.random().toString(36).slice(2)}`;
     state.sessions.set(token, uid);
     return send(200, { success: true, token, user: { id: uid, name: people[uid].name, email: body.email, photo_url: null, avatar_color: people[uid].avatarColor } });
+  }
+  // Google/Apple: o mock não confere o token. "mock-social-novo" = conta sem cadastro.
+  if (path === "/auth/social" && req.method === "POST") {
+    if (body.idToken === "mock-social-novo") return send(404, { error: "Não encontramos uma conta no Servos com esse e-mail. Primeira vez? Entre com o código da igreja.", code: "NO_ACCOUNT" });
+    const token = `mock-${Math.random().toString(36).slice(2)}`;
+    state.sessions.set(token, "ramon");
+    return send(200, { success: true, token, user: { id: "ramon", church_id: "igreja-central", name: people.ramon.name, email: "lider@servos.dev", photo_url: me.photoUrl, avatar_color: people.ramon.avatarColor } });
   }
   if (path === "/auth/forgot-password") return send(200, { success: true });
   if (path === "/auth/logout") return send(200, { success: true });

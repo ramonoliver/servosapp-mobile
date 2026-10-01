@@ -30,7 +30,8 @@ interface SessionState {
   pending: PendingJoin | null;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithCode: (email: string, code: string) => Promise<void>;
-  signInWithGoogle: (firebaseIdToken: string) => Promise<void>;
+  /** Google ou Apple (token do Firebase). */
+  signInWithSocial: (firebaseIdToken: string) => Promise<void>;
   updateUser: (patch: Partial<SessionUser>) => Promise<void>;
   signOut: (reason?: string) => Promise<void>;
   /** Resultado do cadastro: entra direto (convite pessoal) ou vai aguardar. */
@@ -160,7 +161,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback((email: string, password: string) => authenticate(() => endpoints.login(email, password)), [authenticate]);
   const signInWithCode = useCallback((email: string, code: string) => authenticate(() => endpoints.verifyLoginCode(email, code)), [authenticate]);
-  const signInWithGoogle = useCallback((firebaseIdToken: string) => authenticate(() => endpoints.googleLogin(firebaseIdToken)), [authenticate]);
+  const signInWithSocial = useCallback((firebaseIdToken: string) => authenticate(() => endpoints.socialLogin(firebaseIdToken)), [authenticate]);
 
   /** "Meus dados" salvo: reflete nome/foto no app sem esperar a próxima sessão. */
   const updateUser = useCallback(async (patch: Partial<SessionUser>) => {
@@ -206,7 +207,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await enter(res);
         } else {
           await savePending(null);
-          setReason("Seu cadastro foi aprovado! Entre com seu e-mail e senha.");
+          setReason("Seu cadastro foi aprovado! Entre com a mesma conta que você usou no cadastro.");
           setStatus("signedOut");
         }
       } else if (res.status === "rejected") {
@@ -247,9 +248,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       status, user, signedOutReason, pending,
-      signIn, signInWithCode, signInWithGoogle, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch,
+      signIn, signInWithCode, signInWithSocial, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch,
     }),
-    [status, user, signedOutReason, pending, signIn, signInWithCode, signInWithGoogle, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch],
+    [status, user, signedOutReason, pending, signIn, signInWithCode, signInWithSocial, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

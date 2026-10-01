@@ -1,16 +1,17 @@
 import { router } from "expo-router";
 import { useRef, useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ApiError } from "@/api/client";
 import { useSession } from "@/auth/session";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
-import { EnvelopeSimpleIcon, GoogleLogoIcon, InfoIcon } from "@/components/ui/icons";
+import { SocialButtons } from "@/components/auth/SocialButtons";
+import { EnvelopeSimpleIcon, InfoIcon } from "@/components/ui/icons";
 import { Text } from "@/components/ui/Text";
 import { TextField } from "@/components/ui/TextField";
 import { track } from "@/lib/analytics";
-import { GoogleSignInCancelled, googleConfig, googleFirebaseIdToken } from "@/lib/google";
+import type { SocialCredential } from "@/lib/socialAuth";
 import { color, gutter, radius, space } from "@/theme/tokens";
 
 function loginError(e: unknown): string {
@@ -20,18 +21,16 @@ function loginError(e: unknown): string {
   return e instanceof Error ? e.message : "Não foi possível entrar. Tente novamente.";
 }
 
-// Login (§52): e-mail e senha como caminho principal; sem senha (código por
-// e-mail) e Google como alternativas; e, para quem chega pela primeira vez,
-// a entrada pelo código da igreja.
+// Login (§52): e-mail e senha como caminho principal; sem senha (Apple,
+// Google ou código por e-mail) como alternativas; e, para quem chega pela
+// primeira vez, a entrada pelo código da igreja.
 export default function LoginScreen() {
-  const { signIn, signInWithGoogle, signedOutReason } = useSession();
+  const { signIn, signInWithSocial, signedOutReason } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [googleBusy, setGoogleBusy] = useState(false);
   const passwordRef = useRef<TextInput>(null);
-  const google = googleConfig();
 
   const submit = async () => {
     if (submitting) return;
@@ -51,16 +50,21 @@ export default function LoginScreen() {
     }
   };
 
-  const withGoogle = async () => {
-    setGoogleBusy(true);
+  const withSocial = async (credential: SocialCredential) => {
     setError(null);
     try {
-      await signInWithGoogle(await googleFirebaseIdToken());
-      track("login_succeeded", { method: "google" });
+      await signInWithSocial(credential.idToken);
+      track("login_succeeded", { method: credential.provider });
     } catch (e) {
-      if (!(e instanceof GoogleSignInCancelled)) setError(loginError(e));
-    } finally {
-      setGoogleBusy(false);
+      // Conta do Google/Apple sem cadastro no Servos: o caminho é o código da igreja.
+      if (e instanceof ApiError && e.code === "NO_ACCOUNT") {
+        Alert.alert("Primeira vez no Servos?", e.message, [
+          { text: "Agora não", style: "cancel" },
+          { text: "Tenho o código", onPress: () => router.push("/entrar") },
+        ]);
+        return;
+      }
+      setError(e instanceof Error ? e.message : "Não foi possível entrar. Tente novamente.");
     }
   };
 
@@ -127,9 +131,7 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.alternatives}>
-            {google ? (
-              <Button label="Continuar com Google" icon={GoogleLogoIcon} variant="secondary" size="lg" fullWidth loading={googleBusy} onPress={withGoogle} />
-            ) : null}
+            <SocialButtons onCredential={withSocial} onError={setError} disabled={submitting} />
             <Button
               label="Receber código por e-mail"
               icon={EnvelopeSimpleIcon}

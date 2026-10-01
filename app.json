@@ -15,7 +15,11 @@
         "applinks:www.servosapp.com"
       ],
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDevelopmentRegion": "pt-BR",
+        "CFBundleLocalizations": [
+          "pt-BR"
+        ]
       }
     },
     "android": {
@@ -103,10 +107,14 @@
             "enableSceneSupport": true
           }
         }
-      ]
+      ],
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "locales": {
+      "pt-BR": "./locales/pt-BR.json"
     }
   }
 }

@@ -1,0 +1,8 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Servos",
+    "NSCalendarsUsageDescription": "O Servos adiciona suas escalas à agenda do celular, com lembrete.",
+    "NSCalendarsWriteOnlyAccessUsageDescription": "O Servos adiciona suas escalas à agenda do celular, com lembrete. Ele não lê seus outros compromissos.",
+    "NSPhotoLibraryUsageDescription": "O Servos usa suas fotos para a foto de perfil e para anexar arquivos à escala."
+  }
+}

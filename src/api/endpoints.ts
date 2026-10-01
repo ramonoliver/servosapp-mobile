@@ -71,15 +71,20 @@ export const endpoints = {
   requestLoginCode: (email: string) => api<{ success: boolean }>("/auth/email-code", { method: "POST", body: { email: email.trim() } }),
   verifyLoginCode: (email: string, code: string) =>
     api<AuthResponse>("/auth/email-code/verify", { method: "POST", body: { email: email.trim(), code } }),
-  googleLogin: (firebaseIdToken: string) => api<AuthResponse>("/auth/google", { method: "POST", body: { idToken: firebaseIdToken } }),
+  /** Google ou Apple: token do Firebase recém-obtido no provedor. */
+  socialLogin: (firebaseIdToken: string) => api<AuthResponse>("/auth/social", { method: "POST", body: { idToken: firebaseIdToken } }),
   logout: () => api<{ success: boolean }>("/auth/logout", { method: "POST" }),
   forgotPassword: (email: string) => api<{ success: boolean }>("/auth/forgot-password", { method: "POST", body: { email: email.trim() } }),
 
   // Entrada na igreja (públicas)
   joinLookup: (code: string, invite?: string | null) =>
     api<JoinLookup>(`/join/lookup?c=${enc(code)}${invite ? `&i=${enc(invite)}` : ""}`),
-  joinSignup: (input: { code: string; invite?: string | null; name: string; email: string; phone: string; password: string }) =>
-    api<JoinOutcome>("/join/signup", { method: "POST", body: { ...input, email: input.email.trim() } }),
+  /** Com senha, ou com Google/Apple (`idToken` no lugar de e-mail e senha). */
+  joinSignup: (
+    input:
+      | { code: string; invite?: string | null; name: string; email: string; phone: string; password: string }
+      | { code: string; invite?: string | null; name: string; phone: string; idToken: string },
+  ) => api<JoinOutcome>("/join/signup", { method: "POST", body: "email" in input ? { ...input, email: input.email.trim() } : input }),
   joinStatus: (joinToken: string) => api<JoinOutcome>("/join/status", { headers: { "x-servos-join": joinToken } }),
 
   // Entrada na igreja (liderança)
