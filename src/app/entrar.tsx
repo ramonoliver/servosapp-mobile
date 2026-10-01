@@ -14,6 +14,7 @@ import { TextField } from "@/components/ui/TextField";
 import { SocialButtons, useSocialProviders } from "@/components/auth/SocialButtons";
 import { PasteCodeButton } from "@/components/join/PasteCodeButton";
 import { codeFromClipboard, codeProblem, isCompleteCode, maskCode, normalizeCode, parseInviteLink, socialSignupName } from "@/features/join/join";
+import { openSite } from "@/lib/siteLinks";
 import type { SocialCredential } from "@/lib/socialAuth";
 import { color, gutter, radius, space } from "@/theme/tokens";
 import { track } from "@/lib/analytics";
@@ -286,6 +287,17 @@ function SignupForm({ lookup, invite, onChangeChurch }: { lookup: JoinLookup; in
       </View>
 
       <Button label={preapproved ? "Criar conta e entrar" : "Enviar cadastro"} size="lg" fullWidth loading={sending} onPress={submit} />
+      <Text variant="caption" color="mutedForeground" align="center">
+        Ao continuar, você concorda com os{" "}
+        <Text variant="caption" color="primaryText" onPress={() => openSite("terms")} accessibilityRole="link">
+          Termos de uso
+        </Text>{" "}
+        e a{" "}
+        <Text variant="caption" color="primaryText" onPress={() => openSite("privacy")} accessibilityRole="link">
+          Política de privacidade
+        </Text>
+        .
+      </Text>
     </>
   );
 }

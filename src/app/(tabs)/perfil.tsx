@@ -1,6 +1,5 @@
 import Constants from "expo-constants";
 import { router } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { useSession } from "@/auth/session";
@@ -12,10 +11,10 @@ import { useOverview } from "@/features/schedules/queries";
 import { ListRow, RowDivider } from "@/components/ui/ListRow";
 import { Screen, ScreenTitle, SectionHeader } from "@/components/ui/Screen";
 import { Text } from "@/components/ui/Text";
+import { openSite } from "@/lib/siteLinks";
 import { getPermissionState, pushAvailability, type PermissionState } from "@/lib/push";
 import { color, space } from "@/theme/tokens";
 
-const HELP_URL = "https://servosapp.com";
 
 /**
  * Perfil simples (§55). "Meus ministérios" já é uma aba (§70: sem
@@ -76,7 +75,7 @@ export default function ProfileScreen() {
         <RowDivider />
         <ListRow icon={BellIcon} title="Notificações" subtitle={pushLabel} onPress={() => router.push("/preferencias")} />
         <RowDivider />
-        <ListRow icon={QuestionIcon} title="Ajuda" subtitle="Dúvidas sobre o Servos" onPress={() => void WebBrowser.openBrowserAsync(HELP_URL)} />
+        <ListRow icon={QuestionIcon} title="Ajuda" subtitle="Dúvidas sobre o Servos" onPress={() => openSite("support")} />
       </Card>
 
       {overview.data?.access?.canInvite ? (
@@ -113,11 +112,21 @@ export default function ProfileScreen() {
       <Text variant="caption" color="mutedForeground" align="center">
         Servos {Constants.expoConfig?.version ?? ""}
       </Text>
+      <View style={styles.legal}>
+        <Text variant="caption" color="mutedForeground" onPress={() => openSite("privacy")} accessibilityRole="link" style={styles.link}>
+          Privacidade
+        </Text>
+        <Text variant="caption" color="mutedForeground" onPress={() => openSite("terms")} accessibilityRole="link" style={styles.link}>
+          Termos de uso
+        </Text>
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   identity: { flexDirection: "row", alignItems: "center", gap: space[4] },
+  legal: { flexDirection: "row", justifyContent: "center", gap: space[5], marginTop: -space[2] },
+  link: { textDecorationLine: "underline", paddingVertical: space[2] },
   flex: { flex: 1 },
 });
