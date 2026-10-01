@@ -26,15 +26,17 @@ ON_BRAND = (245, 237, 228)
 NIGHT = (16, 14, 11)
 NIGHT_2 = (207, 203, 198)
 
-# (arquivo, título, subtítulo, tema)
+# (arquivo, título, subtítulo, tema[, mascote])
+# Mascote: o Servo do site (assets/mascot), saindo pela lateral do celular.
+# Fica junto da tela do app — a Apple pede capturas do app em uso.
 SLIDES = [
-    ("01-inicio", "Sua próxima escala,\nsempre à vista", "Confirme presença com um toque.", "brand"),
+    ("01-inicio", "Sua próxima escala,\nsempre à vista", "Confirme presença com um toque.", "light", "acenando"),
     ("02-escala", "Tudo o que você\nprecisa saber", "Chegada, local, função e observações.", "light"),
     ("03-conversa", "Recados da equipe\nno lugar certo", "Uma conversa para cada escala.", "light"),
     ("04-repertorio", "O repertório do\nlouvor organizado", "Tom, cifra e vídeo de cada música.", "light"),
     ("05-calendario", "Seu mês de serviço\nnum relance", "E salve na agenda com lembrete.", "light"),
     ("06-equipe", "Para líderes: a equipe\nna palma da mão", "Monte escalas e acompanhe confirmações.", "light"),
-    ("07-escuro", "Confortável de dia\ne de noite", "Com modo escuro automático.", "dark"),
+    ("07-escuro", "Confortável de dia\ne de noite", "Com modo escuro automático.", "dark", "aviso"),
 ]
 
 THEMES = {
@@ -82,7 +84,21 @@ def text_block(draw, x, y, text, font, fill, line_gap):
     return y
 
 
-def slide(name, title, sub, theme, size) -> Image.Image:
+def mascot(pose: str, height: int) -> Image.Image:
+    im = Image.open(APP / f"assets/mascot/{pose}.png").convert("RGBA")
+    w = round(im.width * height / im.height)
+    im = im.resize((w, height), Image.LANCZOS)
+    # Sombra suave no chão, para "pousar" sobre o celular.
+    canvas = Image.new("RGBA", (w, height), (0, 0, 0, 0))
+    shadow = Image.new("RGBA", (w, height), (0, 0, 0, 0))
+    a = im.split()[3].point(lambda v: 60 if v > 10 else 0)
+    shadow.putalpha(a)
+    canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(height * 0.03)), (round(w * 0.02), round(height * 0.03)))
+    canvas.alpha_composite(im)
+    return canvas
+
+
+def slide(name, title, sub, theme, size, pose=None) -> Image.Image:
     W, H = size
     t = THEMES[theme]
     img = Image.new("RGBA", (W, H), t["bg"] + (255,))
@@ -96,7 +112,13 @@ def slide(name, title, sub, theme, size) -> Image.Image:
     shot = Image.open(RAW / f"{name}.png")
     phone = device(shot, round(W * 0.8), (62, 58, 54) if theme == "dark" else (20, 18, 16))
     top = y + round(H * 0.035) - round(W * 0.8 * 0.08)
-    img.alpha_composite(phone, ((W - phone.width) // 2, top))
+    if pose:
+        # Celular um pouco à esquerda; o mascote sai pela direita, embaixo.
+        img.alpha_composite(phone, (round(-W * 0.05), top))
+        m = mascot(pose, round(min(W * 0.38, H * 0.165)))
+        img.alpha_composite(m, (W - m.width - round(W * 0.015), H - m.height - round(H * 0.015)))
+    else:
+        img.alpha_composite(phone, ((W - phone.width) // 2, top))
     return img.convert("RGB")
 
 
@@ -132,8 +154,8 @@ def main():
     for folder, size in targets.items():
         out = ROOT / folder
         out.mkdir(parents=True, exist_ok=True)
-        for i, (name, title, sub, theme) in enumerate(SLIDES, 1):
-            slide(name, title, sub, theme, size).save(out / f"{i:02d}-{name[3:]}.png", optimize=True)
+        for i, (name, title, sub, theme, *pose) in enumerate(SLIDES, 1):
+            slide(name, title, sub, theme, size, pose[0] if pose else None).save(out / f"{i:02d}-{name[3:]}.png", optimize=True)
     (ROOT / "app-store").mkdir(exist_ok=True)
     icon(1024).save(ROOT / "app-store/icone-1024.png")
     gp = ROOT / "google-play"
