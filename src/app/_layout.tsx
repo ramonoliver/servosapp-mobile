@@ -16,6 +16,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider, useSession } from "@/auth/session";
 import { AnimatedSplash } from "@/components/brand/AnimatedSplash";
 import { setAnalyticsEnabled, track } from "@/lib/analytics";
+import { initMonitoring, setMonitoringUser, withMonitoring } from "@/lib/monitoring";
 import { IntroProvider, useIntro } from "@/lib/intro";
 import { ToastProvider } from "@/components/ui/Toast";
 import { appRouteForUrl } from "@/lib/links";
@@ -24,11 +25,14 @@ import { churchOfNotification, configureNotifications, registerDevice, urlFromNo
 import { persister, queryClient } from "@/lib/query";
 import { color, font, solid } from "@/theme/tokens";
 
+initMonitoring();
 void SplashScreen.preventAutoHideAsync();
 configureNotifications();
 track("app_opened");
 
-export default function RootLayout() {
+export default withMonitoring(RootLayout);
+
+function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({ Geist_400Regular, Geist_500Medium, Geist_600SemiBold, Geist_700Bold });
   // O splash animado cobre o app até a navegação estar pronta; depois se dissolve.
   const [settled, setSettled] = useState(false);
@@ -62,6 +66,9 @@ function RootNavigator({ ready, onSettled }: { ready: boolean; onSettled: () => 
   useEffect(() => {
     setAnalyticsEnabled(status === "signedIn");
   }, [status]);
+  useEffect(() => {
+    setMonitoringUser(status === "signedIn" ? user?.id ?? null : null);
+  }, [status, user?.id]);
   return (
     <OnboardingProvider userId={user?.id ?? null}>
       <Navigator ready={ready} status={status} onSettled={onSettled} />

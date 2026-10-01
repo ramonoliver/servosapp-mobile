@@ -16,6 +16,9 @@ const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "";
 // /auth/social. Sem ela, os botões de Google e Apple não aparecem.
 const FIREBASE_API_KEY = process.env.EXPO_PUBLIC_FIREBASE_API_KEY ?? "";
 
+const SENTRY_ORG = process.env.SENTRY_ORG ?? "";
+const SENTRY_PROJECT = process.env.SENTRY_PROJECT ?? "";
+
 /** "123-abc.apps.googleusercontent.com" → "com.googleusercontent.apps.123-abc" */
 function reversedClientId(id: string): string {
   return id.split(".").reverse().join(".");
@@ -31,6 +34,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: { ...config.ios, usesAppleSignIn: true, ...(ios ? { googleServicesFile: IOS_FIREBASE } : {}) },
     plugins: [
       ...(config.plugins ?? []),
+      // Sentry: envio dos mapas de código no build só com a conta configurada
+      // (SENTRY_ORG, SENTRY_PROJECT e o segredo SENTRY_AUTH_TOKEN no EAS).
+      ...(SENTRY_ORG && SENTRY_PROJECT
+        ? [["@sentry/react-native/expo", { organization: SENTRY_ORG, project: SENTRY_PROJECT }] as [string, unknown]]
+        : []),
       ...(GOOGLE_IOS_CLIENT_ID
         ? [["@react-native-google-signin/google-signin", { iosUrlScheme: reversedClientId(GOOGLE_IOS_CLIENT_ID) }] as [string, unknown]]
         : []),

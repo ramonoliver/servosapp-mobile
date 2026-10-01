@@ -115,6 +115,9 @@
     },
     "locales": {
       "pt-BR": "./locales/pt-BR.json"
+    },
+    "runtimeVersion": {
+      "policy": "fingerprint"
     }
   }
 }
