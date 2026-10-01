@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { AssignmentCard } from "@/api/contracts";
 import { Logo } from "@/components/brand/Logo";
-import { Mascot } from "@/components/brand/Mascot";
+import { LivelyMascot, Mascot } from "@/components/brand/Mascot";
 import { ScheduleCard } from "@/components/schedule/ScheduleCard";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -95,7 +95,7 @@ export default function WelcomeScreen() {
             <View style={styles.art} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
               {s.key === "oi" ? (
                 <View style={styles.hello}>
-                  <Mascot pose="acenando" height={Math.min(260, width * 0.62)} />
+                  <LivelyMascot height={Math.min(260, width * 0.62)} />
                 </View>
               ) : (
                 <View>
