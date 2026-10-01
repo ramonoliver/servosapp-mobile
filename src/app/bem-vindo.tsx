@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { AssignmentCard } from "@/api/contracts";
 import { Logo } from "@/components/brand/Logo";
+import { Mascot } from "@/components/brand/Mascot";
 import { ScheduleCard } from "@/components/schedule/ScheduleCard";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -25,11 +26,17 @@ import { addDays, churchToday, parseDay } from "@/features/schedules/format";
 import { useIntro } from "@/lib/intro";
 import { color, gutter, radius, space } from "@/theme/tokens";
 
-// Primeiro acesso (antes do login): três telas curtas sobre o que o app faz,
-// ilustradas com os próprios componentes do app (o que a pessoa vai ver de
-// verdade), e a saída para entrar ou usar o código da igreja.
+// Primeiro acesso (antes do login): boas-vindas com o Servo (o mascote do
+// site) e três telas curtas sobre o que o app faz, ilustradas com os próprios
+// componentes do app (o que a pessoa vai ver de verdade) e o mascote junto.
+// No fim, a saída para entrar ou usar o código da igreja.
 
 const SLIDES = [
+  {
+    key: "oi",
+    title: "Bem-vindo ao Servos",
+    body: "Chega de caçar a escala no grupo. Onde e quando você serve, num só lugar.",
+  },
   {
     key: "escalas",
     title: "Suas escalas num só lugar",
@@ -86,7 +93,16 @@ export default function WelcomeScreen() {
         {SLIDES.map((s, i) => (
           <View key={s.key} style={[styles.slide, { width }]} accessible={i === index} accessibilityLabel={`${s.title}. ${s.body}`}>
             <View style={styles.art} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-              {s.key === "escalas" ? <ScheduleArt /> : s.key === "confirmar" ? <ConfirmArt active={index === i} /> : <SwapArt />}
+              {s.key === "oi" ? (
+                <View style={styles.hello}>
+                  <Mascot pose="acenando" height={Math.min(260, width * 0.62)} />
+                </View>
+              ) : (
+                <View>
+                  {s.key === "escalas" ? <ScheduleArt /> : s.key === "confirmar" ? <ConfirmArt active={index === i} /> : <SwapArt />}
+                  <Mascot pose={s.key === "escalas" ? "agenda" : s.key === "confirmar" ? "confirma" : "radio"} height={92} style={styles.peek} />
+                </View>
+              )}
             </View>
             <View style={styles.copy}>
               <Text variant="display" accessibilityRole="header">
@@ -242,9 +258,9 @@ function SwapArt() {
   return (
     <Card padded={false} style={styles.swapCard}>
       <View style={styles.swapRow}>
-        <Avatar name="Pedro Alves" avatarColor="hsl(28, 40%, 55%)" size={40} />
+        <Avatar name="Bianca Zoe" avatarColor="#AB153E" size={40} />
         <View style={styles.flex}>
-          <Text variant="bodyStrong">Pedro</Text>
+          <Text variant="bodyStrong">Bianca Zoe</Text>
           <Text variant="caption" color="foregroundSecondary">
             Viagem a trabalho
           </Text>
@@ -253,14 +269,20 @@ function SwapArt() {
       </View>
       <View style={styles.swapDivider} />
       <View style={styles.swapRow}>
-        <Avatar name="Ana Souza" avatarColor="hsl(168, 30%, 45%)" size={40} />
+        <Avatar name="Fernanda Frota" avatarColor="#105FA6" size={40} />
         <View style={styles.flex}>
-          <Text variant="bodyStrong">Ana</Text>
+          <Text variant="bodyStrong">Fernanda Frota</Text>
           <Text variant="caption" color="foregroundSecondary">
-            Vai no lugar do Pedro
+            Vai no lugar da Bianca
           </Text>
         </View>
         <StatusBadge label="Confirmada" icon="check" tone="success" size="sm" />
+      </View>
+      <View style={styles.swapFooter}>
+        <Avatar name="Ramon Oliver" avatarColor="#8B2407" size={24} />
+        <Text variant="caption" color="foregroundSecondary" style={styles.flex}>
+          Ramon Oliver, líder do Louvor, aprovou a troca
+        </Text>
       </View>
     </Card>
   );
@@ -273,7 +295,10 @@ const styles = StyleSheet.create({
   topSpacer: { height: 44 },
   pager: { flex: 1 },
   slide: { flex: 1, paddingHorizontal: gutter, justifyContent: "center", gap: space[8] },
-  art: { minHeight: 260, justifyContent: "center" },
+  art: { minHeight: 260, justifyContent: "center", paddingTop: space[10] },
+  hello: { alignItems: "center", justifyContent: "center" },
+  // O mascote "senta" no canto de cima da ilustração.
+  peek: { position: "absolute", right: 0, top: -78 },
   copy: { gap: space[3] },
   stack: { gap: space[3] },
   confirmCard: { gap: space[1], borderRadius: radius.xl, padding: space[5], backgroundColor: color.heroSurface },
@@ -288,6 +313,16 @@ const styles = StyleSheet.create({
   confirmed: { flexDirection: "row", alignItems: "center", gap: space[2] },
   swapCard: { borderRadius: radius.xl, overflow: "hidden" },
   swapRow: { flexDirection: "row", alignItems: "center", gap: space[3], padding: space[4] },
+  swapFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space[2],
+    paddingHorizontal: space[4],
+    paddingVertical: space[3],
+    backgroundColor: color.surfaceSunken,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: color.border,
+  },
   swapDivider: { height: StyleSheet.hairlineWidth, backgroundColor: color.border, marginLeft: 68 },
   bottom: { paddingHorizontal: gutter, paddingBottom: space[4], gap: space[5] },
   dots: { flexDirection: "row", gap: space[2], justifyContent: "center" },

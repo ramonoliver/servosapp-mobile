@@ -3,7 +3,8 @@ import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSession } from "@/auth/session";
 import { Button } from "@/components/ui/Button";
-import { BellIcon, CalendarBlankIcon, CheckCircleIcon, HandsPrayingIcon, type Icon } from "@/components/ui/icons";
+import { Mascot } from "@/components/brand/Mascot";
+import { CalendarBlankIcon, CheckCircleIcon, HandsPrayingIcon, type Icon } from "@/components/ui/icons";
 import { Text } from "@/components/ui/Text";
 import { useOnboarding } from "@/lib/onboarding";
 import { getPermissionState, pushAvailability, registerDevice, requestPermission } from "@/lib/push";
@@ -44,6 +45,7 @@ export default function OnboardingScreen() {
 
       {step === "welcome" ? (
         <View style={styles.body}>
+          <Mascot pose="confirma" height={120} style={styles.mascot} />
           <Text variant="display" accessibilityRole="header">
             {firstName ? `Olá, ${firstName}!` : "Olá!"}
           </Text>
@@ -58,9 +60,7 @@ export default function OnboardingScreen() {
         </View>
       ) : (
         <View style={styles.body}>
-          <View style={styles.bell}>
-            <BellIcon size={32} color={color.primaryText} weight="duotone" />
-          </View>
+          <Mascot pose="aviso" height={200} style={styles.mascotCenter} />
           <Text variant="display" accessibilityRole="header">
             Não perca nenhuma escala
           </Text>
@@ -117,14 +117,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  bell: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.lg,
-    backgroundColor: color.primarySoft,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: space[3],
-  },
+  mascot: { marginBottom: space[2], marginLeft: -space[2] },
+  mascotCenter: { alignSelf: "center", marginBottom: space[4] },
   footer: { gap: space[1], paddingBottom: space[4] },
 });
