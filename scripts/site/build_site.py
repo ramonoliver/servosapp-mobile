@@ -87,7 +87,7 @@ def page(title: str, description: str, body: str) -> str:
 
 PRIVACY = f"""
 <h1>Política de Privacidade</h1>
-<p class="meta">Atualizada em {UPDATED} · Versão 2.0 · Vale para o app Servos (iPhone e Android) e para o Servos web.</p>
+<p class="meta">Atualizada em {UPDATED} · Versão 2.0 · Vale para o app Servos e para o Servos web.</p>
 <p class="lead">O Servos organiza escalas de voluntários de igrejas. Coletamos só o que é preciso para isso, não vendemos dados e não mostramos anúncios.</p>
 
 <div class="card"><p><strong>Resumo:</strong> a igreja cadastra a equipe e as escalas; você vê onde e quando serve, confirma presença e conversa com a equipe. Seus dados ficam no Google Firebase, no Brasil (São Paulo). Você pode excluir sua conta a qualquer momento pelo app, em <strong>Perfil → Excluir minha conta</strong>.</p></div>
