@@ -18,7 +18,7 @@ CONTACT = "contato@servosapp.com"
 UPDATED = "1º de outubro de 2026"
 
 # Preencher antes de subir (ver docs/08-publicacao.md):
-APPLE_TEAM_ID = "TEAMID_DA_CONTA_PAGA"
+APPLE_TEAM_ID = "A2ZA432GEW"
 ANDROID_SHA256 = "SHA256_DO_CERTIFICADO_DO_GOOGLE_PLAY"
 BUNDLE_ID = "com.servosapp.app"
 
