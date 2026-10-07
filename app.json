@@ -2,6 +2,7 @@
   "expo": {
     "name": "Servos",
     "slug": "servos",
+    "owner": "ramonoliver",
     "scheme": "servos",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -123,6 +124,14 @@
     },
     "runtimeVersion": {
       "policy": "fingerprint"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8b250579-8c93-4acb-9091-c145516c8dd5"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/8b250579-8c93-4acb-9091-c145516c8dd5"
     }
   }
 }
