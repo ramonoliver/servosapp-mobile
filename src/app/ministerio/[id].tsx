@@ -46,7 +46,8 @@ export default function MinistryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const ministryId = String(id ?? "");
   const { data, isPending, isError, error, refetch, isRefetching } = useMinistryDetail(ministryId);
-  const [tab, setTab] = useState<Tab>("team");
+  // Para o líder, o ministério abre em Escalas (a tarefa mais comum).
+  const [picked, setTab] = useState<Tab | null>(null);
 
   if (isPending) {
     return (
@@ -75,6 +76,7 @@ export default function MinistryScreen() {
   }
 
   const canManage = data.permissions.canManage;
+  const tab: Tab = picked ?? (canManage ? "schedules" : "team");
   return (
     <Screen edges={[]} refreshing={isRefetching} onRefresh={refetch}>
       <Stack.Screen
@@ -105,11 +107,20 @@ export default function MinistryScreen() {
         </Text>
       ) : null}
       {canManage ? (
+        <Button
+          label="Nova escala"
+          icon={CalendarPlusIcon}
+          size="lg"
+          fullWidth
+          onPress={() => router.push({ pathname: "/nova-escala", params: { ministryId: data.ministry.id } })}
+        />
+      ) : null}
+      {canManage ? (
         <SegmentedControl
           options={[
+            { value: "schedules", label: "Escalas" },
             { value: "team", label: "Equipe" },
             { value: "functions", label: "Funções" },
-            { value: "schedules", label: "Escalas" },
           ]}
           value={tab}
           onChange={setTab}
@@ -516,13 +527,6 @@ function SchedulesTab({ data }: { data: MinistryDetail }) {
   const today = churchToday();
   return (
     <>
-      <Button
-        label="Nova escala"
-        icon={CalendarPlusIcon}
-        size="lg"
-        fullWidth
-        onPress={() => router.push({ pathname: "/nova-escala", params: { ministryId: data.ministry.id } })}
-      />
       {data.upcoming.length === 0 ? (
         <EmptyState icon={CalendarPlusIcon} title="Nenhuma escala nas próximas semanas" description="Crie a próxima a partir de um modelo ou de uma escala anterior." />
       ) : (
