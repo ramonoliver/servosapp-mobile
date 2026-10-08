@@ -75,6 +75,18 @@ export const endpoints = {
   socialLogin: (firebaseIdToken: string) => api<AuthResponse>("/auth/social", { method: "POST", body: { idToken: firebaseIdToken } }),
   logout: () => api<{ success: boolean }>("/auth/logout", { method: "POST" }),
   forgotPassword: (email: string) => api<{ success: boolean }>("/auth/forgot-password", { method: "POST", body: { email: email.trim() } }),
+  /** Criar igreja pelo app: 1) código no e-mail; 2) cria igreja + admin. */
+  requestChurchSignupCode: (email: string) =>
+    api<{ success: boolean }>("/auth/register/code", { method: "POST", body: { email: email.trim() } }),
+  registerChurch: (input: {
+    churchName: string;
+    weeklyServices: { day: string; time: string }[];
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    emailCode: string;
+  }) => api<AuthResponse & { churchCode: string | null }>("/auth/register", { method: "POST", body: { ...input, email: input.email.trim() } }),
 
   // Entrada na igreja (públicas)
   joinLookup: (code: string, invite?: string | null) =>

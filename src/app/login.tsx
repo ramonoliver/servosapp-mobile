@@ -147,6 +147,7 @@ export default function LoginScreen() {
               Primeira vez no Servos?
             </Text>
             <Button label="Entrar com o código da igreja" variant="ghost" onPress={() => router.push("/entrar")} />
+            <Button label="Minha igreja ainda não usa o Servos" variant="ghost" onPress={() => router.push("/criar-igreja")} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

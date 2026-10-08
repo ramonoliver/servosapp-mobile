@@ -1,6 +1,8 @@
 // Criar igreja pelo app: validação dos passos e o formato dos cultos que o
 // servidor espera em /api/auth/register (dia "0"–"6", 0 = domingo).
 
+import { maskCode } from "@/features/join/join";
+
 export type Service = { day: number; time: string };
 
 export const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -35,4 +37,9 @@ export function servicesPayload(services: Service[]): { day: string; time: strin
       return true;
     })
     .map((s) => ({ day: String(s.day), time: s.time }));
+}
+
+/** O que o novo admin manda no WhatsApp: o link já abre o cadastro com o código. */
+export function churchInviteMessage(churchName: string, code: string): string {
+  return `Estamos usando o Servos na ${churchName} para organizar as escalas. Baixe o app e entre com o código ${maskCode(code)}: https://servosapp.com/entrar?c=${code}`;
 }

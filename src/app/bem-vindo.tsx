@@ -70,9 +70,9 @@ export default function WelcomeScreen() {
     setIndex(i);
   };
 
-  const finish = async (next: "/login" | "/entrar") => {
+  const finish = async (next: "/login" | "/entrar" | "/criar-igreja") => {
     await markSeen();
-    if (next === "/entrar") router.push("/entrar");
+    if (next !== "/login") router.push(next);
   };
 
   return (
@@ -122,6 +122,7 @@ export default function WelcomeScreen() {
           <View style={styles.actions}>
             <Button label="Entrar" size="lg" fullWidth onPress={() => void finish("/login")} />
             <Button label="Tenho o código da igreja" variant="secondary" size="lg" fullWidth onPress={() => void finish("/entrar")} />
+            <Button label="Minha igreja ainda não usa o Servos" variant="ghost" fullWidth onPress={() => void finish("/criar-igreja")} />
           </View>
         ) : (
           <View style={styles.actions}>

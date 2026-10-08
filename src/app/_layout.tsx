@@ -167,6 +167,7 @@ function Navigator({
         <Stack.Screen name="esqueci-senha" options={{ headerShown: true, title: "" }} />
         <Stack.Screen name="entrar" options={{ headerShown: true, title: "" }} />
         <Stack.Screen name="entrar-com-codigo" options={{ headerShown: true, title: "" }} />
+        <Stack.Screen name="criar-igreja" options={{ headerShown: true, title: "" }} />
       </Stack.Protected>
     </Stack>
   );

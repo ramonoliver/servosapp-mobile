@@ -1,4 +1,4 @@
-import { churchStepError, DEFAULT_SERVICES, personStepError, servicesPayload } from "./signup";
+import { churchInviteMessage, churchStepError, DEFAULT_SERVICES, personStepError, servicesPayload } from "./signup";
 
 describe("criar igreja", () => {
   it("passo da igreja: nome e pelo menos um culto", () => {
@@ -27,5 +27,11 @@ describe("criar igreja", () => {
       { day: "0", time: "18:00" },
       { day: "3", time: "19:30" },
     ]);
+  });
+
+  it("mensagem de convite com o código e o link de entrada", () => {
+    expect(churchInviteMessage("Igreja Vida", "K7M4QX")).toBe(
+      "Estamos usando o Servos na Igreja Vida para organizar as escalas. Baixe o app e entre com o código K7M-4QX: https://servosapp.com/entrar?c=K7M4QX",
+    );
   });
 });

@@ -32,6 +32,8 @@ interface SessionState {
   signInWithCode: (email: string, code: string) => Promise<void>;
   /** Google ou Apple (token do Firebase). */
   signInWithSocial: (firebaseIdToken: string) => Promise<void>;
+  /** Entra com uma sessão já emitida (ex.: igreja recém-criada). */
+  enterWithResponse: (res: AuthResponse) => Promise<void>;
   updateUser: (patch: Partial<SessionUser>) => Promise<void>;
   signOut: (reason?: string) => Promise<void>;
   /** Resultado do cadastro: entra direto (convite pessoal) ou vai aguardar. */
@@ -162,6 +164,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback((email: string, password: string) => authenticate(() => endpoints.login(email, password)), [authenticate]);
   const signInWithCode = useCallback((email: string, code: string) => authenticate(() => endpoints.verifyLoginCode(email, code)), [authenticate]);
   const signInWithSocial = useCallback((firebaseIdToken: string) => authenticate(() => endpoints.socialLogin(firebaseIdToken)), [authenticate]);
+  const enterWithResponse = useCallback((res: AuthResponse) => authenticate(() => Promise.resolve(res)), [authenticate]);
 
   /** "Meus dados" salvo: reflete nome/foto no app sem esperar a próxima sessão. */
   const updateUser = useCallback(async (patch: Partial<SessionUser>) => {
@@ -248,9 +251,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       status, user, signedOutReason, pending,
-      signIn, signInWithCode, signInWithSocial, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch,
+      signIn, signInWithCode, signInWithSocial, enterWithResponse, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch,
     }),
-    [status, user, signedOutReason, pending, signIn, signInWithCode, signInWithSocial, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch],
+    [status, user, signedOutReason, pending, signIn, signInWithCode, signInWithSocial, enterWithResponse, updateUser, signOut, finishSignup, refreshPending, leavePending, switchChurch],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
