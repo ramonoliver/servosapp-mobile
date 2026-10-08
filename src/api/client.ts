@@ -1,4 +1,5 @@
 import Constants from "expo-constants";
+import { fetch as expoFetch } from "expo/fetch";
 import { File } from "expo-file-system";
 
 // Cliente HTTP da API do Servos-v3. Autenticação pelo header `x-servos-auth`
@@ -90,11 +91,13 @@ export async function api<T>(
 export async function apiUpload<T>(path: string, file: { uri: string; name?: string; type?: string }, fields: Record<string, string> = {}): Promise<T> {
   const form = new FormData();
   for (const [k, v] of Object.entries(fields)) form.append(k, v);
-  // O `expo/fetch` lê bytes, nome e tipo do `File` (que implementa Blob).
+  // Só o `expo/fetch` lê bytes, nome e tipo do `File` (que implementa Blob).
+  // O `fetch` global do React Native não entende esse objeto e manda o campo
+  // sem arquivo, e o servidor recusa ("Formato não suportado").
   form.append("file", new File(file.uri) as unknown as Blob);
-  let res: Response;
+  let res: Awaited<ReturnType<typeof expoFetch>>;
   try {
-    res = await fetch(`${API_URL}/api${path}`, {
+    res = await expoFetch(`${API_URL}/api${path}`, {
       method: "POST",
       headers: { Accept: "application/json", ...(token ? { "x-servos-auth": token } : {}) },
       body: form,
