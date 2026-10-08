@@ -9,18 +9,10 @@ import { SectionHeader } from "@/components/ui/Screen";
 import { ScheduleCardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState, ErrorState, OfflineBanner } from "@/components/ui/States";
 import { Text } from "@/components/ui/Text";
-import { addDays, churchToday, formatShortDate } from "@/features/schedules/format";
+import { groupNotifications, notificationWhen } from "@/features/notifications/format";
 import { appRouteForUrl } from "@/lib/links";
 import { queryKeys } from "@/lib/query";
 import { color, gutter, hitSize, radius, space } from "@/theme/tokens";
-
-function dayOf(iso: string) {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date(iso));
-}
-
-function timeOf(iso: string) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
-}
 
 /** Central (§31): Hoje / Ontem / Anteriores, lidas e não lidas, deep link. */
 export default function NotificationsScreen() {
@@ -40,24 +32,13 @@ export default function NotificationsScreen() {
     },
   });
 
-  const sections = useMemo(() => {
-    const today = churchToday();
-    const yesterday = addDays(today, -1);
-    const groups: Record<string, AppNotification[]> = { Hoje: [], Ontem: [], Anteriores: [] };
-    for (const n of data?.notifications ?? []) {
-      const d = dayOf(n.created_at);
-      groups[d === today ? "Hoje" : d === yesterday ? "Ontem" : "Anteriores"].push(n);
-    }
-    return Object.entries(groups)
-      .filter(([, items]) => items.length > 0)
-      .map(([title, items]) => ({ title, data: items }));
-  }, [data]);
+  const sections = useMemo(() => groupNotifications(data?.notifications ?? []), [data]);
 
   const unread = (data?.notifications ?? []).filter((n) => !n.read).map((n) => n.id);
 
   const open = (n: AppNotification) => {
     if (!n.read) markRead.mutate([n.id]);
-    router.push(appRouteForUrl(n.action_url));
+    router.push(appRouteForUrl(n.actionUrl));
   };
 
   return (
@@ -98,13 +79,12 @@ export default function NotificationsScreen() {
 }
 
 function NotificationItem({ n, onPress }: { n: AppNotification; onPress: () => void }) {
-  const day = dayOf(n.created_at);
-  const when = day === churchToday() ? timeOf(n.created_at) : formatShortDate(day);
+  const when = notificationWhen(n.createdAt);
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${n.read ? "" : "Não lida. "}${n.title}. ${n.body}. ${when}`}
+      accessibilityLabel={[n.read ? "" : "Não lida.", `${n.title}.`, n.body, when].filter(Boolean).join(" ")}
       style={({ pressed }) => [styles.item, !n.read ? styles.unread : null, pressed ? { backgroundColor: color.surfacePressed } : null]}
     >
       <View style={[styles.dot, { backgroundColor: n.read ? "transparent" : color.brandMark }]} />

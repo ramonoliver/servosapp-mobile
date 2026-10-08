@@ -7,16 +7,17 @@ import {
 } from "@expo-google-fonts/geist";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import * as Notifications from "expo-notifications";
-import { router, Stack } from "expo-router";
+import { router, Stack, type ErrorBoundaryProps } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AppState, useColorScheme } from "react-native";
+import { AppState, StyleSheet, useColorScheme, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { SessionProvider, useSession } from "@/auth/session";
 import { AnimatedSplash } from "@/components/brand/AnimatedSplash";
+import { ErrorState } from "@/components/ui/States";
 import { setAnalyticsEnabled, track } from "@/lib/analytics";
-import { initMonitoring, setMonitoringUser, withMonitoring } from "@/lib/monitoring";
+import { initMonitoring, reportError, setMonitoringUser, withMonitoring } from "@/lib/monitoring";
 import { IntroProvider, useIntro } from "@/lib/intro";
 import { ToastProvider } from "@/components/ui/Toast";
 import { appRouteForUrl } from "@/lib/links";
@@ -31,6 +32,17 @@ configureNotifications();
 track("app_opened");
 
 export default withMonitoring(RootLayout);
+
+// Erro de renderização em qualquer tela cai aqui (a rota sem ErrorBoundary
+// própria sobe até o pai). Sem isso, no build de produção o app fecha.
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  useEffect(() => reportError(error), [error]);
+  return (
+    <View style={styles.errorBoundary}>
+      <ErrorState message="Algo deu errado nesta tela. Tente de novo; se continuar, feche e abra o app." onRetry={() => void retry()} />
+    </View>
+  );
+}
 
 function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({ Geist_400Regular, Geist_500Medium, Geist_600SemiBold, Geist_700Bold });
@@ -196,3 +208,7 @@ function usePushWiring(enabled: boolean) {
     router.push(target);
   }, [enabled, lastResponse, user?.church_id, switchChurch]);
 }
+
+const styles = StyleSheet.create({
+  errorBoundary: { flex: 1, justifyContent: "center", padding: 24, backgroundColor: color.background },
+});

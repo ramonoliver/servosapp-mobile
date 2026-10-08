@@ -28,3 +28,8 @@ export function setMonitoringUser(profileId: string | null) {
 export function withMonitoring(Component: () => React.JSX.Element): () => React.JSX.Element {
   return Sentry ? (Sentry.wrap(Component as never) as unknown as () => React.JSX.Element) : Component;
 }
+
+/** Erro já tratado na tela (ex.: pela ErrorBoundary), mas que precisamos ver. */
+export function reportError(error: unknown) {
+  Sentry?.captureException(error);
+}

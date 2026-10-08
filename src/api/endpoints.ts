@@ -227,13 +227,14 @@ export const endpoints = {
     api<{ success: boolean }>("/notifications/register-push", { method: "DELETE", body: { token } }),
 };
 
+/** Formato de GET /notifications/list (o servidor devolve camelCase). */
 export interface AppNotification {
   id: string;
   title: string;
   body: string;
-  icon: string;
+  icon: string | null;
   type: string;
   read: boolean;
-  action_url: string;
-  created_at: string;
+  actionUrl: string | null;
+  createdAt: string | null;
 }
