@@ -220,6 +220,12 @@ export const endpoints = {
   ministry: (id: string) => api<MinistryDetail>(`/mobile/ministries/${enc(id)}`),
   ministryMember: (ministryId: string, input: MemberAction) =>
     api<{ success: boolean; cancelledAssignments?: number }>(`/mobile/ministries/${enc(ministryId)}/members`, { method: "POST", body: input }),
+  /** Mesmo create do web (departments/manage); quem cria entra como líder. */
+  createMinistry: (input: { name: string; leaderId: string }) =>
+    api<{ success: boolean; id: string }>("/departments/manage", {
+      method: "POST",
+      body: { mode: "create", data: { name: input.name.trim(), description: "", icon: "🤝", leader_ids: [input.leaderId], function_names: [] } },
+    }),
   ministryFunction: (ministryId: string, input: FunctionAction) =>
     api<{ success: boolean }>(`/mobile/ministries/${enc(ministryId)}/functions`, { method: "POST", body: input }),
   saveTemplate: (ministryId: string, input: { name: string; fromScheduleId: string }) =>

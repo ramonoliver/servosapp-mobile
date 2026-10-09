@@ -83,6 +83,8 @@ export interface MobileOverview {
     canCreateEvents?: boolean;
     canSeeRepertoire?: boolean;
     canManageSongs?: boolean;
+    /** Criar ministério (admin, pastor, coordenação). */
+    canCreateMinistries?: boolean;
   };
   /** Pedidos de entrada na igreja que ela pode aprovar agora. */
   joinRequests?: number;

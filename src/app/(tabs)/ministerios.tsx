@@ -1,9 +1,10 @@
 import { StyleSheet, View } from "react-native";
 import type { MyMinistry } from "@/api/contracts";
 import { AvatarGroup } from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
 import { Card, PressableCard } from "@/components/ui/Card";
 import { router } from "expo-router";
-import { MusicNotesIcon, UsersThreeIcon } from "@/components/ui/icons";
+import { MusicNotesIcon, PlusIcon, UsersThreeIcon } from "@/components/ui/icons";
 import { ListRow } from "@/components/ui/ListRow";
 import { Screen, ScreenTitle } from "@/components/ui/Screen";
 import { ScheduleCardSkeleton } from "@/components/ui/Skeleton";
@@ -16,6 +17,8 @@ import { color, radius, space } from "@/theme/tokens";
 export default function MinistriesScreen() {
   const { data, isPending, isError, error, refetch, isRefetching } = useMinistries();
   const overview = useOverview();
+  const canCreate = Boolean(overview.data?.access?.canCreateMinistries);
+  const newMinistry = () => router.push("/novo-ministerio");
   return (
     <Screen refreshing={isRefetching} onRefresh={refetch}>
       <ScreenTitle title="Ministérios" />
@@ -28,14 +31,27 @@ export default function MinistriesScreen() {
       ) : isError && !data ? (
         <ErrorState message={error?.message} onRetry={() => void refetch()} />
       ) : data && data.items.length === 0 ? (
-        <EmptyState
-          icon={UsersThreeIcon}
-          title="Você ainda não está em um ministério"
-          description="Quando um líder adicionar você a um ministério, ele aparece aqui."
-        />
+        canCreate ? (
+          <EmptyState
+            icon={UsersThreeIcon}
+            title="Nenhum ministério ainda"
+            description="Comece pelo primeiro ministério da igreja: Louvor, Recepção, Mídia… Depois é só montar a equipe e as escalas."
+            actionLabel="Criar ministério"
+            onAction={newMinistry}
+          />
+        ) : (
+          <EmptyState
+            icon={UsersThreeIcon}
+            title="Você ainda não está em um ministério"
+            description="Quando um líder adicionar você a um ministério, ele aparece aqui."
+          />
+        )
       ) : (
         data?.items.map((m) => <MinistryCard key={m.ministry.id} item={m} />)
       )}
+      {canCreate && data && data.items.length > 0 ? (
+        <Button label="Novo ministério" icon={PlusIcon} variant="secondary" fullWidth onPress={newMinistry} />
+      ) : null}
       {overview.data?.access?.canSeeRepertoire ? (
         <Card padded={false}>
           <ListRow icon={MusicNotesIcon} title="Repertório" subtitle="Músicas, tons e cifras da igreja" onPress={() => router.push("/repertorio")} />
