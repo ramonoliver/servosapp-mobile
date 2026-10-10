@@ -7,7 +7,7 @@ import { useSession } from "@/auth/session";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { SocialButtons } from "@/components/auth/SocialButtons";
-import { EnvelopeSimpleIcon, InfoIcon } from "@/components/ui/icons";
+import { ChurchIcon, EnvelopeSimpleIcon, InfoIcon } from "@/components/ui/icons";
 import { Text } from "@/components/ui/Text";
 import { TextField } from "@/components/ui/TextField";
 import { track } from "@/lib/analytics";
@@ -143,11 +143,11 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.newHere}>
-            <Text variant="label" color="foregroundSecondary">
+            <Text variant="label" color="foregroundSecondary" align="center">
               Primeira vez no Servos?
             </Text>
+            <Button label="Minha igreja ainda não usa o Servos" icon={ChurchIcon} variant="secondary" size="lg" fullWidth onPress={() => router.push("/criar-igreja")} />
             <Button label="Entrar com o código da igreja" variant="ghost" onPress={() => router.push("/entrar")} />
-            <Button label="Minha igreja ainda não usa o Servos" variant="ghost" onPress={() => router.push("/criar-igreja")} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -174,5 +174,5 @@ const styles = StyleSheet.create({
   divider: { flexDirection: "row", alignItems: "center", gap: space[3], marginVertical: space[1] },
   rule: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: color.borderStrong },
   alternatives: { gap: space[3] },
-  newHere: { alignItems: "center", marginTop: space[4] },
+  newHere: { gap: space[2], marginTop: space[4] },
 });

@@ -19,7 +19,7 @@ import { ScheduleCard } from "@/components/schedule/ScheduleCard";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { CheckCircleIcon } from "@/components/ui/icons";
+import { CheckCircleIcon, ChurchIcon } from "@/components/ui/icons";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Text } from "@/components/ui/Text";
 import { addDays, churchToday, parseDay } from "@/features/schedules/format";
@@ -122,7 +122,7 @@ export default function WelcomeScreen() {
           <View style={styles.actions}>
             <Button label="Entrar" size="lg" fullWidth onPress={() => void finish("/login")} />
             <Button label="Tenho o código da igreja" variant="secondary" size="lg" fullWidth onPress={() => void finish("/entrar")} />
-            <Button label="Minha igreja ainda não usa o Servos" variant="ghost" fullWidth onPress={() => void finish("/criar-igreja")} />
+            <Button label="Minha igreja ainda não usa o Servos" icon={ChurchIcon} variant="secondary" size="lg" fullWidth onPress={() => void finish("/criar-igreja")} />
           </View>
         ) : (
           <View style={styles.actions}>
