@@ -1,7 +1,11 @@
 import DateTimePicker, { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+import { useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
-import { formatLongDate, formatTime } from "@/features/schedules/format";
+import { churchToday, formatLongDate, formatTime } from "@/features/schedules/format";
+import { pickerStart } from "@/lib/dateField";
 import { color, hitSize, radius, space, fixed } from "@/theme/tokens";
+import { BottomSheet } from "./BottomSheet";
+import { Button } from "./Button";
 import { Text } from "./Text";
 
 // Data/hora com o seletor NATIVO do sistema (§44 DatePicker/TimePicker).
@@ -34,6 +38,7 @@ export function DateTimeField({
   minimumDate,
   maximumDate,
   placeholder = "Escolher",
+  emptyStart,
   error,
 }: {
   label: string;
@@ -43,10 +48,14 @@ export function DateTimeField({
   minimumDate?: string;
   maximumDate?: string;
   placeholder?: string;
+  /** Onde o seletor abre quando o campo está vazio (ex.: nascimento, 30 anos atrás). */
+  emptyStart?: string;
   error?: string | null;
 }) {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [draft, setDraft] = useState<Date | null>(null);
   const shown = value ? (mode === "date" ? formatLongDate(value) : formatTime(value)) : placeholder;
-  const pickerValue = toDate(value || (mode === "date" ? minimumDate || maximumDate || fromDate(new Date(), "date") : "18:00"), mode);
+  const pickerValue = toDate(pickerStart(value, mode, { emptyStart, minimumDate, maximumDate, today: churchToday() }), mode);
   const min = minimumDate ? toDate(minimumDate, "date") : undefined;
   const max = maximumDate ? toDate(maximumDate, "date") : undefined;
 
@@ -65,7 +74,24 @@ export function DateTimeField({
       <Text variant="label" color="foregroundSecondary">
         {label}
       </Text>
-      {Platform.OS === "ios" ? (
+      {Platform.OS === "ios" && !value ? (
+        // iOS vazio: o "compact" nativo sempre mostra uma data, e um campo
+        // vazio parecia preenchido com o dia de hoje. Mostra o placeholder e
+        // abre o seletor numa folha, com confirmação.
+        <Pressable
+          onPress={() => {
+            setDraft(pickerValue);
+            setSheetOpen(true);
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={`${label}: ${placeholder}`}
+          style={[styles.field, error ? styles.fieldError : null]}
+        >
+          <Text variant="body" color="mutedForeground">
+            {placeholder}
+          </Text>
+        </Pressable>
+      ) : Platform.OS === "ios" ? (
         // iOS: o controle nativo "compact" já mostra o valor — nada de repetir (§70).
         <View style={styles.iosRow}>
           <DateTimePicker
@@ -81,11 +107,6 @@ export function DateTimeField({
             accessibilityLabel={`${label}: ${shown}`}
             style={[styles.iosPicker, mode === "time" ? styles.iosPickerTime : null]}
           />
-          {!value ? (
-            <Text variant="label" color="mutedForeground">
-              {placeholder}
-            </Text>
-          ) : null}
         </View>
       ) : (
         <Pressable
@@ -103,6 +124,29 @@ export function DateTimeField({
         <Text variant="caption" color="danger" accessibilityLiveRegion="polite">
           {error}
         </Text>
+      ) : null}
+      {sheetOpen && draft ? (
+        <BottomSheet visible onClose={() => setSheetOpen(false)} title={label}>
+          <DateTimePicker
+            value={draft}
+            mode={mode}
+            display="spinner"
+            locale="pt-BR"
+            minimumDate={min}
+            maximumDate={max}
+            minuteInterval={mode === "time" ? 5 : undefined}
+            onValueChange={(_e, date) => setDraft(date)}
+          />
+          <Button
+            label={mode === "date" ? "Usar esta data" : "Usar este horário"}
+            size="lg"
+            fullWidth
+            onPress={() => {
+              onChange(fromDate(draft, mode));
+              setSheetOpen(false);
+            }}
+          />
+        </BottomSheet>
       ) : null}
     </View>
   );

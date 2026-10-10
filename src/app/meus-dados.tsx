@@ -21,6 +21,8 @@ import { TextField } from "@/components/ui/TextField";
 import { useToast } from "@/components/ui/Toast";
 import { errorText } from "@/features/leader/queries";
 import { maskPhone } from "@/features/profile/format";
+import { churchToday } from "@/features/schedules/format";
+import { birthDateStart } from "@/lib/dateField";
 import { track } from "@/lib/analytics";
 import { color, gutter, radius, space } from "@/theme/tokens";
 
@@ -135,6 +137,7 @@ function Form({ me }: { me: MeProfile }) {
             value={birthDate}
             onChange={setBirthDate}
             maximumDate={fromDate(new Date(), "date")}
+            emptyStart={birthDateStart(churchToday())}
             placeholder="Não informada"
             error={error}
           />
