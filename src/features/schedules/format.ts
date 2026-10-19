@@ -26,9 +26,13 @@ export function addDays(iso: string, days: number): string {
   return toIso(y, m, d + days);
 }
 
+// Criado uma vez: churchToday() roda no render de várias telas e campos, e
+// montar um Intl.DateTimeFormat com fuso a cada chamada custa caro no Hermes.
+const todayFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" });
+
 /** Hoje no relógio da igreja (America/Sao_Paulo), independente do fuso do aparelho. */
 export function churchToday(now: Date = new Date()): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(now);
+  return todayFmt.format(now);
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo, useRef, useState } from "react";
+import { memo, useMemo, useRef, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { ChatMessage } from "@/api/contracts";
@@ -18,6 +18,11 @@ import { track } from "@/lib/analytics";
 import { color, font, gutter, hitSize, radius, space } from "@/theme/tokens";
 
 const POLL_MS = 10_000;
+
+// Fora do componente: digitar no campo re-renderiza a tela, e um renderItem
+// novo a cada tecla faria a lista redesenhar todos os balões visíveis.
+const bubbleKey = (m: ChatBubble) => m.id;
+const renderBubble = ({ item }: { item: ChatBubble }) => <Bubble m={item} />;
 
 // Conversa da escala: recados entre liderança e equipe (§20). Atualiza a
 // cada 10 s enquanto aberta; recado da liderança chega como push para a
@@ -77,9 +82,9 @@ export default function ScheduleChatScreen() {
             ref={list}
             data={bubbles}
             inverted
-            keyExtractor={(m) => m.id}
+            keyExtractor={bubbleKey}
             contentContainerStyle={styles.list}
-            renderItem={({ item }) => <Bubble m={item} />}
+            renderItem={renderBubble}
             keyboardDismissMode="interactive"
           />
         )}
@@ -116,7 +121,7 @@ export default function ScheduleChatScreen() {
   );
 }
 
-function Bubble({ m }: { m: ChatBubble }) {
+const Bubble = memo(function Bubble({ m }: { m: ChatBubble }) {
   return (
     <View>
       {m.dayLabel ? (
@@ -147,7 +152,7 @@ function Bubble({ m }: { m: ChatBubble }) {
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   fill: { flex: 1, backgroundColor: color.background },
