@@ -68,6 +68,9 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/.expo/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^phosphor-react-native/src/icons/(.*)$": "<rootDir>/node_modules/phosphor-react-native/lib/commonjs/icons/$1"
+    }
   }
 }

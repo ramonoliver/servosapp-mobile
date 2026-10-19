@@ -1,72 +1,72 @@
 // Ícones do app — Phosphor, a mesma família do web. Só os usados, num lugar.
+// Cada ícone vem do próprio arquivo: importar da raiz do pacote leva os
+// 1.512 ícones para o bundle (o tree shaking do Metro não os remove).
 // O Phosphor tipa `color` como string, mas desenha com react-native-svg, que
 // aceita as cores dinâmicas do modo escuro (DynamicColorIOS). Aqui o tipo
 // passa a aceitar qualquer ColorValue.
 import type { ComponentType } from "react";
 import type { ColorValue } from "react-native";
-import {
-  ArrowDownIcon as PArrowDownIcon,
-  ArrowRightIcon as PArrowRightIcon,
-  ArrowUpIcon as PArrowUpIcon,
-  ArrowsClockwiseIcon as PArrowsClockwiseIcon,
-  ArrowsDownUpIcon as PArrowsDownUpIcon,
-  ArrowsLeftRightIcon as PArrowsLeftRightIcon,
-  BellIcon as PBellIcon,
-  BookmarkSimpleIcon as PBookmarkSimpleIcon,
-  CalendarBlankIcon as PCalendarBlankIcon,
-  CalendarCheckIcon as PCalendarCheckIcon,
-  CalendarPlusIcon as PCalendarPlusIcon,
-  CameraIcon as PCameraIcon,
-  CaretDownIcon as PCaretDownIcon,
-  CaretLeftIcon as PCaretLeftIcon,
-  CaretRightIcon as PCaretRightIcon,
-  ChartBarHorizontalIcon as PChartBarHorizontalIcon,
-  ChatCircleDotsIcon as PChatCircleDotsIcon,
-  CheckCircleIcon as PCheckCircleIcon,
-  CheckIcon as PCheckIcon,
-  ChurchIcon as PChurchIcon,
-  ClockCounterClockwiseIcon as PClockCounterClockwiseIcon,
-  ClockIcon as PClockIcon,
-  CloudSlashIcon as PCloudSlashIcon,
-  CopyIcon as PCopyIcon,
-  CrownSimpleIcon as PCrownSimpleIcon,
-  EnvelopeSimpleIcon as PEnvelopeSimpleIcon,
-  EyeIcon as PEyeIcon,
-  EyeSlashIcon as PEyeSlashIcon,
-  FileTextIcon as PFileTextIcon,
-  GoogleLogoIcon as PGoogleLogoIcon,
-  HandsPrayingIcon as PHandsPrayingIcon,
-  ImageIcon as PImageIcon,
-  InfoIcon as PInfoIcon,
-  ListChecksIcon as PListChecksIcon,
-  LockSimpleIcon as PLockSimpleIcon,
-  MagnifyingGlassIcon as PMagnifyingGlassIcon,
-  MapPinIcon as PMapPinIcon,
-  MusicNotesIcon as PMusicNotesIcon,
-  NoteIcon as PNoteIcon,
-  PaperPlaneRightIcon as PPaperPlaneRightIcon,
-  PaperPlaneTiltIcon as PPaperPlaneTiltIcon,
-  PaperclipIcon as PPaperclipIcon,
-  PencilSimpleIcon as PPencilSimpleIcon,
-  PhoneIcon as PPhoneIcon,
-  PlusIcon as PPlusIcon,
-  ProhibitIcon as PProhibitIcon,
-  ProhibitInsetIcon as PProhibitInsetIcon,
-  QuestionIcon as PQuestionIcon,
-  ShareNetworkIcon as PShareNetworkIcon,
-  SignOutIcon as PSignOutIcon,
-  SlidersHorizontalIcon as PSlidersHorizontalIcon,
-  TrashIcon as PTrashIcon,
-  UserIcon as PUserIcon,
-  UserMinusIcon as PUserMinusIcon,
-  UserPlusIcon as PUserPlusIcon,
-  UsersThreeIcon as PUsersThreeIcon,
-  WarningCircleIcon as PWarningCircleIcon,
-  XCircleIcon as PXCircleIcon,
-  XIcon as PXIcon,
-  YoutubeLogoIcon as PYoutubeLogoIcon,
-  type IconProps as PhosphorProps,
-} from "phosphor-react-native";
+import type { IconProps as PhosphorProps } from "phosphor-react-native";
+import { ArrowDownIcon as PArrowDownIcon } from "phosphor-react-native/src/icons/ArrowDown";
+import { ArrowRightIcon as PArrowRightIcon } from "phosphor-react-native/src/icons/ArrowRight";
+import { ArrowUpIcon as PArrowUpIcon } from "phosphor-react-native/src/icons/ArrowUp";
+import { ArrowsClockwiseIcon as PArrowsClockwiseIcon } from "phosphor-react-native/src/icons/ArrowsClockwise";
+import { ArrowsDownUpIcon as PArrowsDownUpIcon } from "phosphor-react-native/src/icons/ArrowsDownUp";
+import { ArrowsLeftRightIcon as PArrowsLeftRightIcon } from "phosphor-react-native/src/icons/ArrowsLeftRight";
+import { BellIcon as PBellIcon } from "phosphor-react-native/src/icons/Bell";
+import { BookmarkSimpleIcon as PBookmarkSimpleIcon } from "phosphor-react-native/src/icons/BookmarkSimple";
+import { CalendarBlankIcon as PCalendarBlankIcon } from "phosphor-react-native/src/icons/CalendarBlank";
+import { CalendarCheckIcon as PCalendarCheckIcon } from "phosphor-react-native/src/icons/CalendarCheck";
+import { CalendarPlusIcon as PCalendarPlusIcon } from "phosphor-react-native/src/icons/CalendarPlus";
+import { CameraIcon as PCameraIcon } from "phosphor-react-native/src/icons/Camera";
+import { CaretDownIcon as PCaretDownIcon } from "phosphor-react-native/src/icons/CaretDown";
+import { CaretLeftIcon as PCaretLeftIcon } from "phosphor-react-native/src/icons/CaretLeft";
+import { CaretRightIcon as PCaretRightIcon } from "phosphor-react-native/src/icons/CaretRight";
+import { ChartBarHorizontalIcon as PChartBarHorizontalIcon } from "phosphor-react-native/src/icons/ChartBarHorizontal";
+import { ChatCircleDotsIcon as PChatCircleDotsIcon } from "phosphor-react-native/src/icons/ChatCircleDots";
+import { CheckCircleIcon as PCheckCircleIcon } from "phosphor-react-native/src/icons/CheckCircle";
+import { CheckIcon as PCheckIcon } from "phosphor-react-native/src/icons/Check";
+import { ChurchIcon as PChurchIcon } from "phosphor-react-native/src/icons/Church";
+import { ClockCounterClockwiseIcon as PClockCounterClockwiseIcon } from "phosphor-react-native/src/icons/ClockCounterClockwise";
+import { ClockIcon as PClockIcon } from "phosphor-react-native/src/icons/Clock";
+import { CloudSlashIcon as PCloudSlashIcon } from "phosphor-react-native/src/icons/CloudSlash";
+import { CopyIcon as PCopyIcon } from "phosphor-react-native/src/icons/Copy";
+import { CrownSimpleIcon as PCrownSimpleIcon } from "phosphor-react-native/src/icons/CrownSimple";
+import { EnvelopeSimpleIcon as PEnvelopeSimpleIcon } from "phosphor-react-native/src/icons/EnvelopeSimple";
+import { EyeIcon as PEyeIcon } from "phosphor-react-native/src/icons/Eye";
+import { EyeSlashIcon as PEyeSlashIcon } from "phosphor-react-native/src/icons/EyeSlash";
+import { FileTextIcon as PFileTextIcon } from "phosphor-react-native/src/icons/FileText";
+import { GoogleLogoIcon as PGoogleLogoIcon } from "phosphor-react-native/src/icons/GoogleLogo";
+import { HandsPrayingIcon as PHandsPrayingIcon } from "phosphor-react-native/src/icons/HandsPraying";
+import { ImageIcon as PImageIcon } from "phosphor-react-native/src/icons/Image";
+import { InfoIcon as PInfoIcon } from "phosphor-react-native/src/icons/Info";
+import { ListChecksIcon as PListChecksIcon } from "phosphor-react-native/src/icons/ListChecks";
+import { LockSimpleIcon as PLockSimpleIcon } from "phosphor-react-native/src/icons/LockSimple";
+import { MagnifyingGlassIcon as PMagnifyingGlassIcon } from "phosphor-react-native/src/icons/MagnifyingGlass";
+import { MapPinIcon as PMapPinIcon } from "phosphor-react-native/src/icons/MapPin";
+import { MusicNotesIcon as PMusicNotesIcon } from "phosphor-react-native/src/icons/MusicNotes";
+import { NoteIcon as PNoteIcon } from "phosphor-react-native/src/icons/Note";
+import { PaperPlaneRightIcon as PPaperPlaneRightIcon } from "phosphor-react-native/src/icons/PaperPlaneRight";
+import { PaperPlaneTiltIcon as PPaperPlaneTiltIcon } from "phosphor-react-native/src/icons/PaperPlaneTilt";
+import { PaperclipIcon as PPaperclipIcon } from "phosphor-react-native/src/icons/Paperclip";
+import { PencilSimpleIcon as PPencilSimpleIcon } from "phosphor-react-native/src/icons/PencilSimple";
+import { PhoneIcon as PPhoneIcon } from "phosphor-react-native/src/icons/Phone";
+import { PlusIcon as PPlusIcon } from "phosphor-react-native/src/icons/Plus";
+import { ProhibitIcon as PProhibitIcon } from "phosphor-react-native/src/icons/Prohibit";
+import { ProhibitInsetIcon as PProhibitInsetIcon } from "phosphor-react-native/src/icons/ProhibitInset";
+import { QuestionIcon as PQuestionIcon } from "phosphor-react-native/src/icons/Question";
+import { ShareNetworkIcon as PShareNetworkIcon } from "phosphor-react-native/src/icons/ShareNetwork";
+import { SignOutIcon as PSignOutIcon } from "phosphor-react-native/src/icons/SignOut";
+import { SlidersHorizontalIcon as PSlidersHorizontalIcon } from "phosphor-react-native/src/icons/SlidersHorizontal";
+import { TrashIcon as PTrashIcon } from "phosphor-react-native/src/icons/Trash";
+import { UserIcon as PUserIcon } from "phosphor-react-native/src/icons/User";
+import { UserMinusIcon as PUserMinusIcon } from "phosphor-react-native/src/icons/UserMinus";
+import { UserPlusIcon as PUserPlusIcon } from "phosphor-react-native/src/icons/UserPlus";
+import { UsersThreeIcon as PUsersThreeIcon } from "phosphor-react-native/src/icons/UsersThree";
+import { WarningCircleIcon as PWarningCircleIcon } from "phosphor-react-native/src/icons/WarningCircle";
+import { XCircleIcon as PXCircleIcon } from "phosphor-react-native/src/icons/XCircle";
+import { XIcon as PXIcon } from "phosphor-react-native/src/icons/X";
+import { YoutubeLogoIcon as PYoutubeLogoIcon } from "phosphor-react-native/src/icons/YoutubeLogo";
 
 export type IconProps = Omit<PhosphorProps, "color" | "duotoneColor"> & { color?: ColorValue; duotoneColor?: ColorValue };
 export type Icon = ComponentType<IconProps>;

@@ -3,7 +3,12 @@
   "compilerOptions": {
     "strict": true,
     "types": ["jest", "node"],
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": ["./src/*"],
+      // Ícone a ícone (src/components/ui/icons.ts): os tipos vêm dos .d.ts
+      // publicados, não do .tsx do pacote, que não passa no modo strict.
+      "phosphor-react-native/src/icons/*": ["./node_modules/phosphor-react-native/lib/typescript/icons/*"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }
