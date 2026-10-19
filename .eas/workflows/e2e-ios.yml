@@ -36,17 +36,6 @@ jobs:
           build_id: ${{ needs.build_ios_simulator.outputs.build_id }}
           extensions: [app]
 
-      - name: Subir a API de mock
-        run: |
-          nohup node scripts/mock-api.mjs > mock-api.log 2>&1 &
-          for i in $(seq 1 30); do
-            curl -s -o /dev/null http://localhost:3999/api/auth/session && exit 0
-            sleep 1
-          done
-          cat mock-api.log
-          echo "A API de mock não respondeu em http://localhost:3999" >&2
-          exit 1
-
       - name: Ligar o simulador e instalar o app
         run: |
           DEVICE=$(xcrun simctl list devices available -j \
@@ -62,8 +51,20 @@ jobs:
           curl -Ls "https://get.maestro.mobile.dev" | bash
           "$HOME/.maestro/bin/maestro" --version
 
-      - name: Rodar os fluxos
+      # O mock sobe no mesmo passo do Maestro, para durar até o fim dos testes.
+      - name: Rodar os fluxos contra a API de mock
         run: |
+          node --version
+          node scripts/mock-api.mjs > mock-api.log 2>&1 &
+          MOCK_PID=$!
+          trap 'kill $MOCK_PID 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            curl -s -o /dev/null http://127.0.0.1:3999/api/auth/session && break
+            if ! kill -0 $MOCK_PID 2>/dev/null; then cat mock-api.log; echo "A API de mock parou." >&2; exit 1; fi
+            sleep 1
+          done
+          curl -s -o /dev/null http://127.0.0.1:3999/api/auth/session || { cat mock-api.log; echo "A API de mock não respondeu em http://localhost:3999" >&2; exit 1; }
+          cat mock-api.log
           mkdir -p maestro-results
           "$HOME/.maestro/bin/maestro" test .maestro \
             --format junit --output maestro-results/report.xml \
