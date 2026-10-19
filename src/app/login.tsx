@@ -83,7 +83,7 @@ export default function LoginScreen() {
           </View>
 
           {signedOutReason ? (
-            <View style={styles.notice} accessibilityRole="alert">
+            <View style={styles.notice} accessible accessibilityRole="alert">
               <InfoIcon size={18} color={color.info} weight="bold" />
               <Text variant="label" color="info" style={styles.flex}>
                 {signedOutReason}
