@@ -26,6 +26,9 @@ import { track } from "@/lib/analytics";
 import { color, font, gutter, hitSize, radius, space } from "@/theme/tokens";
 
 type Step = "church" | "person" | "code" | "done";
+// `id` só identifica o cartão na tela (key estável ao remover um culto);
+// não vai para o servidor (servicesPayload lê só dia e horário).
+type ServiceRow = Service & { id: number };
 
 const RESEND_SECONDS = 45;
 const DAY_OPTIONS = WEEKDAYS.map((label, i) => ({ value: String(i), label }));
@@ -38,7 +41,8 @@ export default function CreateChurchScreen() {
   const { enterWithResponse } = useSession();
   const [step, setStep] = useState<Step>("church");
   const [churchName, setChurchName] = useState("");
-  const [services, setServices] = useState<Service[]>(DEFAULT_SERVICES);
+  const [services, setServices] = useState<ServiceRow[]>(() => DEFAULT_SERVICES.map((s, id) => ({ ...s, id })));
+  const nextServiceId = useRef(DEFAULT_SERVICES.length);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -120,8 +124,8 @@ export default function CreateChurchScreen() {
     if (digits.length === 6) void create(digits);
   };
 
-  const updateService = (i: number, patch: Partial<Service>) =>
-    setServices((list) => list.map((s, j) => (j === i ? { ...s, ...patch } : s)));
+  const updateService = (id: number, patch: Partial<Service>) =>
+    setServices((list) => list.map((s) => (s.id === id ? { ...s, ...patch } : s)));
 
   const start = async () => {
     if (!created || busy) return;
@@ -167,19 +171,19 @@ export default function CreateChurchScreen() {
               <Text variant="label" color="foregroundSecondary">
                 Viram os eventos de onde saem as escalas. Dá para mudar depois.
               </Text>
-              {services.map((s, i) => (
-                <Card key={i}>
+              {services.map((s) => (
+                <Card key={s.id}>
                   <View style={styles.service}>
-                    <FilterChips options={DAY_OPTIONS} value={String(s.day)} onChange={(d) => updateService(i, { day: Number(d) })} />
+                    <FilterChips options={DAY_OPTIONS} value={String(s.day)} onChange={(d) => updateService(s.id, { day: Number(d) })} />
                     <View style={styles.serviceRow}>
                       <View style={styles.flex}>
-                        <DateTimeField label="Horário" mode="time" value={s.time} onChange={(time) => updateService(i, { time })} />
+                        <DateTimeField label="Horário" mode="time" value={s.time} onChange={(time) => updateService(s.id, { time })} />
                       </View>
                       <Button
                         label="Remover"
                         icon={TrashIcon}
                         variant="ghost"
-                        onPress={() => setServices((list) => list.filter((_, j) => j !== i))}
+                        onPress={() => setServices((list) => list.filter((x) => x.id !== s.id))}
                       />
                     </View>
                   </View>
@@ -190,7 +194,10 @@ export default function CreateChurchScreen() {
                 icon={PlusIcon}
                 variant="secondary"
                 fullWidth
-                onPress={() => setServices((list) => [...list, { day: 0, time: "19:00" }])}
+                onPress={() => {
+                  const id = nextServiceId.current++;
+                  setServices((list) => [...list, { id, day: 0, time: "19:00" }]);
+                }}
               />
             </View>
             <ErrorText error={error} />
