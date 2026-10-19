@@ -1,0 +1,28 @@
+# Login com e-mail e senha (mock: qualquer e-mail, senha "servos").
+appId: com.servosapp.app
+name: Login com e-mail e senha
+tags:
+  - login
+---
+- runFlow: subflows/abrir-app-limpo.yaml
+- tapOn: "Entrar"
+- extendedWaitUntil:
+    visible: "Entrar no Servos"
+    timeout: 10000
+# Senha errada primeiro: a mensagem aparece e a pessoa continua no login.
+- tapOn: "E-mail"
+- inputText: "lider@servos.dev"
+- tapOn: "Senha"
+- inputText: "errada"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: "E-mail ou senha incorretos."
+    timeout: 10000
+- tapOn: "Senha"
+- eraseText: 20
+- inputText: "servos"
+- pressKey: Enter
+- runFlow:
+    file: subflows/concluir-onboarding.yaml
+    env:
+      NOME: "Ramon"

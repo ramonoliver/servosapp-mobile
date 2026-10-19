@@ -22,6 +22,16 @@
       "channel": "preview",
       "android": { "buildType": "apk" }
     },
+    "e2e": {
+      "extends": "base",
+      "withoutCredentials": true,
+      "channel": "e2e",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://localhost:3999"
+      },
+      "ios": { "simulator": true },
+      "android": { "buildType": "apk" }
+    },
     "production": {
       "extends": "base",
       "channel": "production",

@@ -1,0 +1,17 @@
+# App recém-instalado: sem sessão (o token fica no Keychain, que sobrevive à
+# reinstalação no simulador) e sem o "já vi a introdução". Para nas boas-vindas,
+# já na última tela, onde ficam as saídas para entrar.
+appId: com.servosapp.app
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- extendedWaitUntil:
+    visible: "Pular"
+    timeout: 60000
+- tapOn: "Pular"
+- extendedWaitUntil:
+    visible: "Tenho o código da igreja"
+    timeout: 10000

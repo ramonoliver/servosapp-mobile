@@ -1,0 +1,42 @@
+# Criar igreja: igreja e cultos → dados do admin → código no e-mail
+# (mock: sempre 123456) → igreja criada com o código para a equipe.
+appId: com.servosapp.app
+name: Criar igreja
+tags:
+  - cadastro
+---
+- runFlow: subflows/abrir-app-limpo.yaml
+- tapOn: "Minha igreja ainda não usa o Servos"
+- extendedWaitUntil:
+    visible: "Sua igreja no Servos"
+    timeout: 10000
+- tapOn: "Nome da igreja"
+- inputText: "Igreja Teste E2E"
+- pressKey: Enter
+- scrollUntilVisible:
+    element: "Continuar"
+    direction: DOWN
+- tapOn: "Continuar"
+- extendedWaitUntil:
+    visible: "Seus dados"
+    timeout: 10000
+- tapOn: "Nome completo"
+- inputText: "Ana Teste"
+- tapOn: "E-mail"
+- inputText: "ana.e2e@exemplo.com"
+- tapOn: "Senha"
+- inputText: "segredo123"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: "Digite o código"
+    timeout: 10000
+- waitForAnimationToEnd
+- inputText: "123456"
+- extendedWaitUntil:
+    visible: "Igreja criada!"
+    timeout: 15000
+- assertVisible: "Compartilhar código"
+- tapOn: "Começar"
+- extendedWaitUntil:
+    visible: "Olá, Ana!"
+    timeout: 20000

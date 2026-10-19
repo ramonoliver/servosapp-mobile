@@ -1,0 +1,37 @@
+# Entrar com o código da igreja (mock: K7M4QX, Igreja Central). Sem convite
+# pessoal o cadastro vai para a aprovação da liderança.
+appId: com.servosapp.app
+name: Entrar com o código da igreja
+tags:
+  - cadastro
+---
+- runFlow: subflows/abrir-app-limpo.yaml
+- tapOn: "Tenho o código da igreja"
+- extendedWaitUntil:
+    visible: "Entrar na sua igreja"
+    timeout: 10000
+# Código que não existe: erro e a pessoa continua no passo do código.
+- tapOn: "Código da igreja"
+- inputText: "ZZZ999"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: "Não encontramos uma igreja com esse código.*"
+    timeout: 10000
+- tapOn: "Código da igreja"
+- eraseText: 10
+- inputText: "K7M4QX"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: "Igreja Central"
+    timeout: 10000
+- tapOn: "Nome completo"
+- inputText: "Maria Teste"
+- tapOn: "E-mail"
+- inputText: "maria.e2e@exemplo.com"
+- tapOn: "Crie uma senha"
+- inputText: "segredo123"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: "Cadastro enviado"
+    timeout: 15000
+- assertVisible: "Verificar agora"

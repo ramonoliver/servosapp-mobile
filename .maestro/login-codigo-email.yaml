@@ -1,0 +1,31 @@
+# Entrar sem senha: código de 6 dígitos no e-mail (mock: sempre 123456).
+appId: com.servosapp.app
+name: Entrar sem senha com código por e-mail
+tags:
+  - login
+---
+- runFlow: subflows/abrir-app-limpo.yaml
+- tapOn: "Entrar"
+- extendedWaitUntil:
+    visible: "Entrar no Servos"
+    timeout: 10000
+- scrollUntilVisible:
+    element: "Receber código por e-mail"
+    direction: DOWN
+- tapOn: "Receber código por e-mail"
+- extendedWaitUntil:
+    visible: "Entrar sem senha"
+    timeout: 10000
+- tapOn: "E-mail"
+- inputText: "lider@servos.dev"
+- tapOn: "Enviar código"
+- extendedWaitUntil:
+    visible: "Digite o código"
+    timeout: 10000
+# O campo do código ganha o foco sozinho logo depois do envio.
+- waitForAnimationToEnd
+- inputText: "123456"
+- runFlow:
+    file: subflows/concluir-onboarding.yaml
+    env:
+      NOME: "Ramon"

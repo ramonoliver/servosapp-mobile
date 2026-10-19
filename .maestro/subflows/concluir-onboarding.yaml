@@ -1,0 +1,16 @@
+# Depois de entrar: as duas telas do primeiro acesso, sem ativar notificações.
+# NOME: primeiro nome esperado na saudação.
+appId: com.servosapp.app
+---
+- extendedWaitUntil:
+    visible: "Olá, ${NOME}!"
+    timeout: 20000
+- tapOn: "Começar"
+- extendedWaitUntil:
+    visible: "Agora não"
+    timeout: 10000
+- tapOn: "Agora não"
+- extendedWaitUntil:
+    visible: "(Bom dia|Boa tarde|Boa noite), Ramon"
+    timeout: 20000
+- assertVisible: "Início"
