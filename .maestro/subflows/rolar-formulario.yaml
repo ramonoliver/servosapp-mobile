@@ -1,0 +1,15 @@
+# Com o teclado aberto, os últimos campos do formulário ficam escondidos atrás
+# dele. Arrasta o conteúdo para cima (onde a tela fecha o teclado ao arrastar,
+# ele fecha) para o campo de senha ficar ao alcance do toque.
+appId: com.servosapp.app
+---
+- swipe:
+    start: "50%, 45%"
+    end: "50%, 20%"
+    duration: 500
+- swipe:
+    start: "50%, 45%"
+    end: "50%, 20%"
+    duration: 500
+- waitForAnimationToEnd:
+    timeout: 2000

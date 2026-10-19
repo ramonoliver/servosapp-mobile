@@ -1,0 +1,13 @@
+# Depois de enviar uma senha, o iOS pode oferecer "Save Password?" por cima
+# do app. Fecha o alerta se ele aparecer (o simulador do EAS está em inglês).
+appId: com.servosapp.app
+---
+- extendedWaitUntil:
+    visible: "Not Now"
+    timeout: 5000
+    optional: true
+- runFlow:
+    when:
+      visible: "Not Now"
+    commands:
+      - tapOn: "Not Now"

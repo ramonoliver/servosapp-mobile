@@ -1,0 +1,8 @@
+# Fluxos ponta a ponta do Servos (Maestro). Rodam contra a API de mock
+# (scripts/mock-api.mjs em http://localhost:3999), nunca contra produção:
+# o perfil "e2e" do eas.json gera o build de simulador apontando para ela.
+#
+# Campos de texto: o rótulo visível e o campo têm o mesmo nome acessível, então
+# os fluxos tocam no elemento ABAIXO do rótulo (`below`) para focar o campo.
+flows:
+  - "*.yaml"

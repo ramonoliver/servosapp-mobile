@@ -742,6 +742,17 @@ const server = createServer(async (req, res) => {
     state.sessions.set(token, "ramon");
     return send(200, { success: true, token, user: { id: "ramon", name: people.ramon.name, email: body.email, photo_url: me.photoUrl, avatar_color: people.ramon.avatarColor } });
   }
+  // Criar igreja: código no e-mail (sempre 123456) → igreja + admin, já ativa.
+  if (path === "/auth/register/code" && req.method === "POST") {
+    if (/ramon|lider/i.test(String(body.email))) return send(409, { error: "Este e-mail já tem uma conta no Servos. Entre com ele.", code: "EMAIL_IN_USE" });
+    return send(200, { success: true });
+  }
+  if (path === "/auth/register" && req.method === "POST") {
+    if (String(body.emailCode).replace(/\D/g, "") !== "123456") return send(400, { error: "Código incorreto. Você tem mais 4 tentativas.", code: "CODE_WRONG" });
+    const token = `mock-${Math.random().toString(36).slice(2)}`;
+    state.sessions.set(token, "ramon");
+    return send(200, { success: true, token, churchCode: "Q4N7TB", user: { id: "ramon", name: String(body.name), email: body.email, photo_url: null, avatar_color: people.ramon.avatarColor } });
+  }
   if (path === "/auth/login" && req.method === "POST") {
     if (body.password !== "servos") return send(401, { error: "E-mail ou senha incorretos." });
     // Cadastro ainda em análise (pendente@servos.dev).

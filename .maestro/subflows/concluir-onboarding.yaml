@@ -1,0 +1,21 @@
+# Depois de entrar: o primeiro acesso ("Olá, …!") e a Home.
+# A tela de notificações só aparece quando o aparelho pode receber push e a
+# permissão ainda não foi pedida; no simulador ela costuma ser pulada.
+# NOME: primeiro nome esperado na saudação.
+appId: com.servosapp.app
+---
+- extendedWaitUntil:
+    visible: "Olá, ${NOME}!"
+    timeout: 20000
+- tapOn: "Começar"
+- waitForAnimationToEnd:
+    timeout: 3000
+- runFlow:
+    when:
+      visible: "Agora não"
+    commands:
+      - tapOn: "Agora não"
+- extendedWaitUntil:
+    visible: "(Bom dia|Boa tarde|Boa noite), Ramon"
+    timeout: 20000
+- assertVisible: "Início"

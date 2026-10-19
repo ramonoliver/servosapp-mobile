@@ -1,0 +1,93 @@
+# Testes ponta a ponta (Maestro) no simulador iOS, contra a API de mock
+# (scripts/mock-api.mjs) — nunca contra produção. Gasta um build de iOS por
+# execução, então não roda em todo push: só manualmente
+# (eas workflow:run .eas/workflows/e2e-ios.yml) ou ao pôr o rótulo "e2e" num PR.
+# Mudou só .maestro/? Reaproveite um build de simulador já feito:
+#   eas workflow:run .eas/workflows/e2e-ios.yml -F build_id=<id do build>
+#
+# O job "maestro" pronto do EAS exige plano pago; este job faz o mesmo à mão
+# num Mac do EAS: sobe o mock, liga o simulador, instala o app e roda o Maestro.
+name: E2E iOS (Maestro)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_id:
+        type: string
+        required: false
+        description: Build de simulador iOS (perfil e2e) já feito. Vazio = faz um build novo.
+  pull_request_labeled:
+    labels: [e2e]
+
+defaults:
+  image: sdk-57
+
+jobs:
+  build_ios_simulator:
+    name: Build de simulador iOS (API de mock)
+    type: build
+    if: ${{ !inputs.build_id }}
+    params:
+      platform: ios
+      profile: e2e
+
+  maestro_ios:
+    name: Maestro no simulador iOS
+    after: [build_ios_simulator]
+    if: ${{ inputs.build_id || after.build_ios_simulator.status == 'success' }}
+    runs_on: macos-medium
+    steps:
+      - uses: eas/checkout
+
+      - uses: eas/download_build
+        id: app
+        with:
+          build_id: ${{ inputs.build_id || after.build_ios_simulator.outputs.build_id }}
+          extensions: [app]
+
+      - name: Ligar o simulador e instalar o app
+        run: |
+          DEVICE=$(xcrun simctl list devices available -j \
+            | node -e 'const d=JSON.parse(require("fs").readFileSync(0)).devices;const all=Object.entries(d).filter(([r])=>r.includes("iOS")).sort(([a],[b])=>b.localeCompare(a,undefined,{numeric:true})).flatMap(([,l])=>l);const p=all.find((x)=>/^iPhone \d+ Pro$/.test(x.name))||all.find((x)=>x.name.startsWith("iPhone"));console.log(p.udid)')
+          echo "Simulador: $DEVICE"
+          xcrun simctl boot "$DEVICE" || true
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl install "$DEVICE" "${{ steps.app.outputs.artifact_path }}"
+
+      # A imagem do EAS já costuma trazer o Maestro; instala só se faltar.
+      - name: Instalar o Maestro
+        run: |
+          if [ ! -x "$HOME/.maestro/bin/maestro" ]; then
+            java -version 2>&1 || brew install openjdk@17
+            curl -Ls "https://get.maestro.mobile.dev" | bash
+          fi
+          "$HOME/.maestro/bin/maestro" --version
+
+      # O mock sobe no mesmo passo do Maestro, para durar até o fim dos testes.
+      - name: Rodar os fluxos contra a API de mock
+        run: |
+          node --version
+          node scripts/mock-api.mjs > mock-api.log 2>&1 &
+          MOCK_PID=$!
+          trap 'kill $MOCK_PID 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            curl -s -o /dev/null http://127.0.0.1:3999/api/auth/session && break
+            if ! kill -0 $MOCK_PID 2>/dev/null; then cat mock-api.log; echo "A API de mock parou." >&2; exit 1; fi
+            sleep 1
+          done
+          curl -s -o /dev/null http://127.0.0.1:3999/api/auth/session || { cat mock-api.log; echo "A API de mock não respondeu em http://localhost:3999" >&2; exit 1; }
+          cat mock-api.log
+          mkdir -p maestro-results
+          "$HOME/.maestro/bin/maestro" test .maestro \
+            --format junit --output maestro-results/report.xml \
+            --test-output-dir maestro-results \
+            || { cp ~/Library/Logs/DiagnosticReports/Servos* maestro-results/ 2>/dev/null || true; exit 1; }
+
+      - uses: eas/upload_artifact
+        if: ${{ always() }}
+        with:
+          type: other
+          name: maestro-results
+          path: |
+            maestro-results/**/*
+            mock-api.log
