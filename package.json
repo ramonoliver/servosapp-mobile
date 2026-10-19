@@ -76,7 +76,8 @@
       "<rootDir>/.claude/"
     ],
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "^phosphor-react-native/src/icons/(.*)$": "<rootDir>/node_modules/phosphor-react-native/lib/commonjs/icons/$1"
     }
   }
 }
