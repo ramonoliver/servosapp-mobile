@@ -40,3 +40,7 @@ npx expo run:ios
 ```bash
 npx tsc --noEmit && npx expo lint && npx jest
 ```
+
+**CI:** o EAS Workflows roda [`.eas/workflows/ci.yml`](.eas/workflows/ci.yml) em todo push e PR para `main`: `npm ci`, lint, typecheck e `jest --ci` (só validação, sem build nem update).
+Os comandos rodam com stdin fechado (`</dev/null`); sem isso o Jest fica parado esperando entrada.
+Para disparar à mão: `npx eas-cli@latest workflow:run .eas/workflows/ci.yml`.
