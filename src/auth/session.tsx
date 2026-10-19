@@ -1,13 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsRestoring } from "@tanstack/react-query";
 import * as SecureStore from "expo-secure-store";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ApiError, setApiToken, setUnauthorizedHandler } from "@/api/client";
 import { endpoints, type AuthResponse, type JoinOutcome, type SessionUser } from "@/api/endpoints";
-import { queryClient, clearPersistedCache } from "@/lib/query";
+import { bindCacheToUser, queryClient, clearPersistedCache } from "@/lib/query";
 import { unregisterPushOnLogout } from "@/lib/push";
-import { TOKEN_KEY } from "@/lib/savedSession";
+import { TOKEN_KEY, USER_KEY } from "@/lib/savedSession";
 
-const USER_KEY = "servos.user";
 const JOIN_KEY = "servos.join";
 
 type Status = "loading" | "signedOut" | "signedIn" | "pending";
@@ -72,6 +72,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       await savePending(null);
       setApiToken(res.token);
       await persist(res.token, res.user);
+      bindCacheToUser(res.user);
       setUser(res.user);
       setReason(null);
       setStatus("signedIn");
@@ -81,6 +82,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const clearLocal = useCallback(async (reason: string | null) => {
     setApiToken(null);
+    // Antes do clear: o que ainda for gravado no disco não leva mais a marca
+    // de quem saiu e não é restaurado para a próxima conta.
+    bindCacheToUser(null);
     await persist(null, null);
     queryClient.clear();
     await clearPersistedCache();
@@ -108,7 +112,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   // Boot: token salvo → renova a sessão (sliding). Sem rede, entra com o
   // último usuário conhecido e o cache (§51) — não joga a pessoa no login.
+  // Espera o cache do disco ser restaurado: se a sessão expirou, a limpeza
+  // tem que vir DEPOIS da restauração, senão os dados voltam para a memória.
+  const isRestoring = useIsRestoring();
+  const booted = useRef(false);
   useEffect(() => {
+    if (isRestoring || booted.current) return;
+    booted.current = true;
     (async () => {
       const [savedToken, savedUser] = await Promise.all([
         SecureStore.getItemAsync(TOKEN_KEY),
@@ -130,10 +140,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         const res = await endpoints.session();
         setApiToken(res.token);
         await persist(res.token, res.user);
+        bindCacheToUser(res.user);
         setUser(res.user);
         setStatus("signedIn");
       } catch (error) {
         if (error instanceof ApiError && error.isNetwork && cachedUser) {
+          bindCacheToUser(cachedUser);
           setUser(cachedUser);
           setStatus("signedIn");
           return;
@@ -141,7 +153,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await clearLocal(error instanceof ApiError && error.status === 401 ? "Sua sessão expirou. Entre novamente para continuar." : null);
       }
     })();
-  }, [clearLocal]);
+  }, [isRestoring, clearLocal]);
 
   /** Login (senha, código ou Google): entra, ou vai para a espera se o cadastro ainda está em análise. */
   const authenticate = useCallback(

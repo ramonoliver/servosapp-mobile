@@ -55,9 +55,9 @@ function RootLayout() {
     <SafeAreaProvider>
       <PersistQueryClientProvider
         client={queryClient}
+        // Ações feitas sem rede e salvas em disco voltam a ser enviadas (§51)
+        // quando a sessão é renovada — ver bindCacheToUser no SessionProvider.
         persistOptions={{ persister, maxAge: 7 * 24 * 60 * 60 * 1000, buster: "v1" }}
-        // Ações feitas sem rede e salvas em disco voltam a ser enviadas (§51).
-        onSuccess={() => void queryClient.resumePausedMutations()}
       >
         <SessionProvider>
           <ToastProvider>

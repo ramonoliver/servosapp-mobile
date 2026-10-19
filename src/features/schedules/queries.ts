@@ -3,7 +3,7 @@ import { ApiError } from "@/api/client";
 import type { AssignmentStatus, MobileOverview, MobileScheduleDetail, MobileScheduleList } from "@/api/contracts";
 import { endpoints } from "@/api/endpoints";
 import { useToast } from "@/components/ui/Toast";
-import { mutationKeys, queryKeys } from "@/lib/query";
+import { mutationKeys, queryKeys, refreshAfterResponse } from "@/lib/query";
 import { relativeDay, churchToday, parseDay } from "./format";
 import { applyToDetail, applyToList, applyToOverview } from "./optimistic";
 
@@ -60,11 +60,6 @@ function useOptimisticStatus() {
     rollback(snapshot: Snapshot | undefined) {
       snapshot?.forEach(([k, v]) => qc.setQueryData(k, v));
     },
-    refresh(scheduleId?: string) {
-      void qc.invalidateQueries({ queryKey: queryKeys.overview });
-      void qc.invalidateQueries({ queryKey: ["schedules"] });
-      if (scheduleId) void qc.invalidateQueries({ queryKey: queryKeys.schedule(scheduleId) });
-    },
   };
 }
 
@@ -107,12 +102,14 @@ export function useRespond() {
         description: error instanceof ApiError ? error.message : "Tente novamente.",
       });
     },
-    onSettled: (_d, _e, v) => optimistic.refresh(v.scheduleId),
+    // onSettled (atualizar as telas) e a fila em ordem vêm dos defaults da
+    // chave em lib/query.ts — valem também para a resposta retomada do disco.
   });
 }
 
 /** Pedir substituição — precisa de rede (o líder tem que receber agora). */
 export function useRequestReplacement() {
+  const qc = useQueryClient();
   const toast = useToast();
   const optimistic = useOptimisticStatus();
   return useMutation({
@@ -130,6 +127,6 @@ export function useRequestReplacement() {
         description: error instanceof ApiError ? error.message : "Tente novamente.",
       });
     },
-    onSettled: (_d, _e, v) => optimistic.refresh(v.scheduleId),
+    onSettled: (_d, _e, v) => refreshAfterResponse(qc, v),
   });
 }
