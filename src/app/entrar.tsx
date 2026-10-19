@@ -18,6 +18,7 @@ import { openSite } from "@/lib/siteLinks";
 import type { SocialCredential } from "@/lib/socialAuth";
 import { color, gutter, radius, space } from "@/theme/tokens";
 import { track } from "@/lib/analytics";
+import { newPasswordProps } from "@/lib/e2e";
 
 const lookupError = (e: unknown) => (e instanceof ApiError ? e.message : "Não foi possível verificar o código. Tente novamente.");
 
@@ -268,8 +269,7 @@ function SignupForm({ lookup, invite, onChangeChurch }: { lookup: JoinLookup; in
           value={password}
           onChangeText={setPassword}
           secureTextEntry
-          autoComplete="new-password"
-          textContentType="newPassword"
+          {...newPasswordProps}
           returnKeyType="go"
           onSubmitEditing={submit}
           hint="Pelo menos 6 caracteres."

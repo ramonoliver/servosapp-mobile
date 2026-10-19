@@ -80,7 +80,8 @@ jobs:
           mkdir -p maestro-results
           "$HOME/.maestro/bin/maestro" test .maestro \
             --format junit --output maestro-results/report.xml \
-            --test-output-dir maestro-results
+            --test-output-dir maestro-results \
+            || { cp ~/Library/Logs/DiagnosticReports/Servos* maestro-results/ 2>/dev/null || true; exit 1; }
 
       - uses: eas/upload_artifact
         if: ${{ always() }}

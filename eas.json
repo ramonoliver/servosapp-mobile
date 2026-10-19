@@ -27,7 +27,8 @@
       "withoutCredentials": true,
       "channel": "e2e",
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://localhost:3999"
+        "EXPO_PUBLIC_API_URL": "http://localhost:3999",
+        "EXPO_PUBLIC_E2E": "1"
       },
       "ios": { "simulator": true },
       "android": { "buildType": "apk" }

@@ -23,6 +23,7 @@ import {
 import { maskCode } from "@/features/join/join";
 import { maskPhone } from "@/features/profile/format";
 import { track } from "@/lib/analytics";
+import { newPasswordProps } from "@/lib/e2e";
 import { color, font, gutter, hitSize, radius, space } from "@/theme/tokens";
 
 type Step = "church" | "person" | "code" | "done";
@@ -242,8 +243,7 @@ export default function CreateChurchScreen() {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              autoComplete="new-password"
-              textContentType="newPassword"
+              {...newPasswordProps}
               returnKeyType="send"
               onSubmitEditing={() => void sendCode()}
             />

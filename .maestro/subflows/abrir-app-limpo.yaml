@@ -4,13 +4,17 @@
 appId: com.servosapp.app
 ---
 - clearKeychain
-- launchApp:
-    clearState: true
-    permissions:
-      all: deny
-- extendedWaitUntil:
-    visible: "Pular"
-    timeout: 60000
+# A primeira abertura logo depois da instalação às vezes cai; tenta de novo.
+- retry:
+    maxRetries: 2
+    commands:
+      - launchApp:
+          clearState: true
+          permissions:
+            all: deny
+      - extendedWaitUntil:
+          visible: "Pular"
+          timeout: 60000
 - tapOn: "Pular"
 - extendedWaitUntil:
     visible: "Tenho o código da igreja"

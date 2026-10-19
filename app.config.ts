@@ -46,6 +46,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     extra: {
       ...config.extra,
       apiUrl: process.env.EXPO_PUBLIC_API_URL ?? "https://servos-server.vercel.app",
+      // Build dos testes ponta a ponta (perfil "e2e" do eas.json).
+      e2e: process.env.EXPO_PUBLIC_E2E === "1",
       pushConfigured: { android, ios },
       google: google ? { webClientId: GOOGLE_WEB_CLIENT_ID, iosClientId: GOOGLE_IOS_CLIENT_ID, firebaseApiKey: FIREBASE_API_KEY } : null,
       // Entrar com Apple só precisa da chave pública do Firebase.
