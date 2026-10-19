@@ -22,21 +22,29 @@ tags:
 - extendedWaitUntil:
     visible: "Seus dados"
     timeout: 10000
-# Cada campo passa para o próximo com Enter (o celular é opcional).
+# Nome → Enter → e-mail. O celular é opcional e o teclado numérico não tem
+# Enter, então rola até a senha e toca nela; o Enter da senha envia o código.
 - tapOn:
     text: "Nome completo"
     below: "Nome completo"
 - inputText: "Ana Teste"
 - pressKey: Enter
 - inputText: "ana.e2e@exemplo.com"
-- pressKey: Enter
-- pressKey: Enter
+- runFlow: subflows/rolar-formulario.yaml
+- tapOn:
+    text: "Senha"
+    below: "Senha"
 - inputText: "segredo123"
 - pressKey: Enter
+- runFlow: subflows/dispensar-salvar-senha.yaml
 - extendedWaitUntil:
     visible: "Digite o código"
     timeout: 10000
-- waitForAnimationToEnd
+# O campo do código ganha o foco sozinho; o toque garante o foco caso o
+# alerta de senha tenha tirado.
+- tapOn:
+    text: "Código de 6 dígitos"
+    optional: true
 - inputText: "123456"
 - extendedWaitUntil:
     visible: "Igreja criada!"

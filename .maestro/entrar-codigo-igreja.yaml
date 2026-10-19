@@ -28,17 +28,21 @@ tags:
 - extendedWaitUntil:
     visible: "Igreja Central"
     timeout: 10000
-# Cada campo passa para o próximo com Enter (o celular é opcional).
+# Nome → Enter → e-mail. O celular é opcional e o teclado numérico não tem
+# Enter, então rola até a senha e toca nela; o Enter da senha envia.
 - tapOn:
     text: "Nome completo"
     below: "Nome completo"
 - inputText: "Maria Teste"
 - pressKey: Enter
 - inputText: "maria.e2e@exemplo.com"
-- pressKey: Enter
-- pressKey: Enter
+- runFlow: subflows/rolar-formulario.yaml
+- tapOn:
+    text: "Crie uma senha"
+    below: "Crie uma senha"
 - inputText: "segredo123"
 - pressKey: Enter
+- runFlow: subflows/dispensar-salvar-senha.yaml
 - extendedWaitUntil:
     visible: "Cadastro enviado"
     timeout: 15000

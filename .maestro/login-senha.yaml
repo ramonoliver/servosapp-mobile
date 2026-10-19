@@ -26,6 +26,7 @@ tags:
 - eraseText: 20
 - inputText: "servos"
 - pressKey: Enter
+- runFlow: subflows/dispensar-salvar-senha.yaml
 - runFlow:
     file: subflows/concluir-onboarding.yaml
     env:
