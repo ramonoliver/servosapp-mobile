@@ -10,7 +10,9 @@ tags:
 - extendedWaitUntil:
     visible: "Sua igreja no Servos"
     timeout: 10000
-- tapOn: "Nome da igreja"
+- tapOn:
+    text: "Nome da igreja"
+    below: "Nome da igreja"
 - inputText: "Igreja Teste E2E"
 - pressKey: Enter
 - scrollUntilVisible:
@@ -20,11 +22,15 @@ tags:
 - extendedWaitUntil:
     visible: "Seus dados"
     timeout: 10000
-- tapOn: "Nome completo"
+# Cada campo passa para o próximo com Enter (o celular é opcional).
+- tapOn:
+    text: "Nome completo"
+    below: "Nome completo"
 - inputText: "Ana Teste"
-- tapOn: "E-mail"
+- pressKey: Enter
 - inputText: "ana.e2e@exemplo.com"
-- tapOn: "Senha"
+- pressKey: Enter
+- pressKey: Enter
 - inputText: "segredo123"
 - pressKey: Enter
 - extendedWaitUntil:

@@ -2,13 +2,20 @@
 # (scripts/mock-api.mjs) — nunca contra produção. Gasta um build de iOS por
 # execução, então não roda em todo push: só manualmente
 # (eas workflow:run .eas/workflows/e2e-ios.yml) ou ao pôr o rótulo "e2e" num PR.
+# Mudou só .maestro/? Reaproveite um build de simulador já feito:
+#   eas workflow:run .eas/workflows/e2e-ios.yml -F build_id=<id do build>
 #
 # O job "maestro" pronto do EAS exige plano pago; este job faz o mesmo à mão
 # num Mac do EAS: sobe o mock, liga o simulador, instala o app e roda o Maestro.
 name: E2E iOS (Maestro)
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      build_id:
+        type: string
+        required: false
+        description: Build de simulador iOS (perfil e2e) já feito. Vazio = faz um build novo.
   pull_request_labeled:
     labels: [e2e]
 
@@ -19,13 +26,15 @@ jobs:
   build_ios_simulator:
     name: Build de simulador iOS (API de mock)
     type: build
+    if: ${{ !inputs.build_id }}
     params:
       platform: ios
       profile: e2e
 
   maestro_ios:
     name: Maestro no simulador iOS
-    needs: [build_ios_simulator]
+    after: [build_ios_simulator]
+    if: ${{ inputs.build_id || after.build_ios_simulator.status == 'success' }}
     runs_on: macos-medium
     steps:
       - uses: eas/checkout
@@ -33,7 +42,7 @@ jobs:
       - uses: eas/download_build
         id: app
         with:
-          build_id: ${{ needs.build_ios_simulator.outputs.build_id }}
+          build_id: ${{ inputs.build_id || after.build_ios_simulator.outputs.build_id }}
           extensions: [app]
 
       - name: Ligar o simulador e instalar o app
@@ -45,10 +54,13 @@ jobs:
           xcrun simctl bootstatus "$DEVICE" -b
           xcrun simctl install "$DEVICE" "${{ steps.app.outputs.artifact_path }}"
 
+      # A imagem do EAS já costuma trazer o Maestro; instala só se faltar.
       - name: Instalar o Maestro
         run: |
-          java -version 2>&1 || brew install openjdk@17
-          curl -Ls "https://get.maestro.mobile.dev" | bash
+          if [ ! -x "$HOME/.maestro/bin/maestro" ]; then
+            java -version 2>&1 || brew install openjdk@17
+            curl -Ls "https://get.maestro.mobile.dev" | bash
+          fi
           "$HOME/.maestro/bin/maestro" --version
 
       # O mock sobe no mesmo passo do Maestro, para durar até o fim dos testes.

@@ -11,24 +11,32 @@ tags:
     visible: "Entrar na sua igreja"
     timeout: 10000
 # Código que não existe: erro e a pessoa continua no passo do código.
-- tapOn: "Código da igreja"
+- tapOn:
+    text: "Código da igreja"
+    below: "Código da igreja"
 - inputText: "ZZZ999"
 - pressKey: Enter
 - extendedWaitUntil:
     visible: "Não encontramos uma igreja com esse código.*"
     timeout: 10000
-- tapOn: "Código da igreja"
+- tapOn:
+    text: "Código da igreja"
+    below: "Código da igreja"
 - eraseText: 10
 - inputText: "K7M4QX"
 - pressKey: Enter
 - extendedWaitUntil:
     visible: "Igreja Central"
     timeout: 10000
-- tapOn: "Nome completo"
+# Cada campo passa para o próximo com Enter (o celular é opcional).
+- tapOn:
+    text: "Nome completo"
+    below: "Nome completo"
 - inputText: "Maria Teste"
-- tapOn: "E-mail"
+- pressKey: Enter
 - inputText: "maria.e2e@exemplo.com"
-- tapOn: "Crie uma senha"
+- pressKey: Enter
+- pressKey: Enter
 - inputText: "segredo123"
 - pressKey: Enter
 - extendedWaitUntil:

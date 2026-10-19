@@ -16,7 +16,9 @@ tags:
 - extendedWaitUntil:
     visible: "Entrar sem senha"
     timeout: 10000
-- tapOn: "E-mail"
+- tapOn:
+    text: "E-mail"
+    below: "E-mail"
 - inputText: "lider@servos.dev"
 - tapOn: "Enviar código"
 - extendedWaitUntil:
