@@ -1,0 +1,66 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "copyright": "2026 Servos",
+    "categories": [
+      "LIFESTYLE",
+      "PRODUCTIVITY"
+    ],
+    "info": {
+      "pt-BR": {
+        "title": "Servos",
+        "subtitle": "Escalas da igreja sem confusão",
+        "description": "O Servos organiza onde e quando você serve na sua igreja.\n\nPARA QUEM SERVE\n• Veja sua próxima escala com dia, horário de chegada, local e função.\n• Confirme presença com um toque, ou avise que não pode e peça substituição.\n• Converse com a equipe em cada escala e abra os arquivos e o repertório.\n• Salve a escala na agenda do celular, com lembrete.\n• Avise os dias em que não pode servir.\n\nPARA QUEM LIDERA\n• Monte escalas a partir de modelos ou de escalas anteriores.\n• Acompanhe quem confirmou e veja as vagas em aberto.\n• Convide pessoas com o código da igreja, link ou QR code, e aprove os pedidos de entrada.\n• Monte a lista de músicas do louvor e anexe roteiros.\n\nServe em mais de uma igreja? Entre em todas com a mesma conta.\n\nO Servos é usado pela sua igreja: peça o código à liderança para entrar. A sua igreja ainda não usa? Crie a igreja pelo app e convide a equipe.",
+        "keywords": [
+          "escala",
+          "igreja",
+          "voluntários",
+          "ministério",
+          "louvor",
+          "culto",
+          "equipe",
+          "agenda",
+          "servir",
+          "célula",
+          "repertório",
+          "mídia"
+        ],
+        "promoText": "Sua próxima escala, sempre à vista. Confirme presença com um toque.",
+        "marketingUrl": "https://www.servosapp.com/",
+        "supportUrl": "https://www.servosapp.com/suporte/",
+        "privacyPolicyUrl": "https://www.servosapp.com/privacidade/"
+      }
+    },
+    "advisory": {
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gamblingSimulated": "NONE",
+      "horrorOrFearThemes": "NONE",
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+      "ageRatingOverride": "NONE",
+      "koreaAgeRatingOverride": "NONE",
+      "gambling": false,
+      "unrestrictedWebAccess": false,
+      "kidsAgeBand": null
+    },
+    "review": {
+      "firstName": "Ramon",
+      "lastName": "Oliveira",
+      "email": "contato@servosapp.com",
+      "demoUsername": "revisao@servosapp.com",
+      "demoRequired": true,
+      "notes": "O Servos é usado por igrejas cadastradas. Para revisar, use a conta de demonstração informada acima: ela já faz parte da \"Igreja Demonstração\", com ministérios, escalas, músicas e conversa. Excluir a conta: Perfil → Excluir minha conta. Entrar com Apple está na tela de login; contas sem cadastro são orientadas a usar o código da igreja ou a criar uma igreja pelo app."
+    },
+    "release": {
+      "automaticRelease": false,
+      "phasedRelease": false
+    }
+  }
+}
