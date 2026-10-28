@@ -68,8 +68,10 @@ npx eas-cli@latest update --channel production --message "o que mudou"
 
 ## 7. Página na App Store (texto pronto)
 
+Os textos abaixo já estão em `store.config.json` (EAS Metadata). Para enviá-los ao App Store Connect, rode `npx eas-cli@latest metadata:push`. O comando pede o login da Apple. A senha da conta de demonstração não fica no arquivo: preencha-a no App Store Connect, em App Review Information. Capturas e privacidade (seção 8) ainda são feitas no site.
+
 - **Nome:** Servos
-- **Subtítulo (30):** Escalas da igreja sem complicação
+- **Subtítulo (30):** Escalas da igreja sem confusão
 - **Categoria:** Estilo de vida (secundária: Produtividade)
 - **Classificação:** 4+ (responder "não" a tudo; há conversa entre usuários → marcar "conteúdo gerado por usuários: não irrestrito")
 - **Palavras-chave (100):** escala,igreja,voluntários,ministério,louvor,culto,equipe,agenda,servir,célula,repertório,mídia
