@@ -11,9 +11,10 @@
 2. Salve em `ServosMobile/firebase/google-services.json` (a pasta está no `.gitignore`).
 3. Gere um novo build (`npx expo run:android` ou EAS). `app.config.ts` detecta o arquivo e liga o push.
 
-## iOS — decisão técnica pendente
-`expo-notifications` no iOS devolve token **APNs**, e o FCM não aceita esse token. Opções:
-- **A (recomendada):** `@react-native-firebase/app` + `@react-native-firebase/messaging` para obter token FCM no iOS. Exige o `GoogleService-Info.plist` (em `firebase/`), a chave APNs (.p8) cadastrada no Firebase e `expo-build-properties` com `ios.useFrameworks: "static"`. O servidor não muda.
-- **B:** o servidor passa a enviar direto via APNs para tokens `platform=ios` (chave .p8 no servidor). O app não muda, mas o servidor ganha um segundo canal.
+## iOS — serviço de push da Expo (decidido em 2026-10-28)
+O token APNs cru do iPhone não serve ao FCM. Em vez de instalar o React Native Firebase (que hoje exige `useFrameworks: "dynamic"` em todo o app iOS), o iPhone registra um token do serviço de push da Expo (`getExpoPushTokenAsync`, `ExponentPushToken[...]`), e o servidor envia esses tokens pela API da Expo (`https://exp.host/--/api/v2/push/send`). Os demais tokens seguem pelo FCM.
 
-Até lá, no iOS, os avisos chegam pela central in-app (o sininho do Início) e o app não pede a permissão nativa.
+Para funcionar:
+1. **Chave de push no EAS:** expo.dev → projeto → Credentials → iOS → `com.servosapp.app` → Push Key. Use uma chave APNs (.p8) da conta Apple ou deixe o `eas credentials` criar uma.
+2. **Servidor** (`Servos-v3/server/src/services/push.service.ts`) com o envio para tokens da Expo publicado.
+3. **Build novo** do app (a pré-permissão passa a aparecer no iPhone).

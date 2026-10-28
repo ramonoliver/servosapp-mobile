@@ -5,13 +5,12 @@ import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { endpoints } from "@/api/endpoints";
 
-// Push (§32, §54). O servidor envia via FCM (firebase-admin), então o
-// aparelho precisa de um token FCM:
-//  - Android: `getDevicePushTokenAsync` já devolve o token FCM, desde que o
-//    build tenha o google-services.json (app.config.ts).
-//  - iOS: `getDevicePushTokenAsync` devolve token APNs, que o FCM não aceita.
-//    Precisa do React Native Firebase Messaging + GoogleService-Info.plist —
-//    ver docs/03-push.md. Até lá, iOS não registra (a central in-app funciona).
+// Push (§32, §54). O servidor envia pelo canal certo conforme o token:
+//  - Android: `getDevicePushTokenAsync` devolve o token FCM, desde que o
+//    build tenha o google-services.json (app.config.ts). Vai por FCM.
+//  - iOS: o token APNs cru não serve ao FCM, então o app registra um token do
+//    serviço de push da Expo (`ExponentPushToken[...]`), e o servidor envia
+//    por ele. A chave APNs fica nas credenciais do EAS. Ver docs/03-push.md.
 
 const STORED_TOKEN = "servos.push.token";
 export const ANDROID_CHANNEL = "escalas";
@@ -25,7 +24,22 @@ export function pushAvailability(): PushAvailability {
   if (!Device.isDevice) return "simulator";
   const configured = (Constants.expoConfig?.extra?.pushConfigured ?? {}) as PushConfigured;
   if (Platform.OS === "android") return configured.android ? "ready" : "not_configured";
-  return "not_configured";
+  return expoProjectId() ? "ready" : "not_configured";
+}
+
+function expoProjectId(): string | null {
+  const id = (Constants.expoConfig?.extra?.eas as { projectId?: unknown } | undefined)?.projectId;
+  return typeof id === "string" && id ? id : null;
+}
+
+/** Android: token FCM. iOS: token do serviço de push da Expo. */
+async function pushToken(): Promise<string> {
+  if (Platform.OS === "ios") {
+    const { data } = await Notifications.getExpoPushTokenAsync({ projectId: expoProjectId()! });
+    return data;
+  }
+  const { data } = await Notifications.getDevicePushTokenAsync();
+  return String(data);
 }
 
 export function configureNotifications() {
@@ -66,8 +80,7 @@ export async function registerDevice(): Promise<boolean> {
   if (pushAvailability() !== "ready") return false;
   if ((await getPermissionState()) !== "granted") return false;
   try {
-    const { data } = await Notifications.getDevicePushTokenAsync();
-    const token = String(data);
+    const token = await pushToken();
     await endpoints.registerPush(token, Platform.OS === "ios" ? "ios" : "android", Device.modelName ?? undefined);
     await AsyncStorage.setItem(STORED_TOKEN, token);
     return true;
