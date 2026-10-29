@@ -317,6 +317,8 @@ export interface MeProfile {
   photoUrl: string | null;
   avatarColor: string | null;
   church: { name: string };
+  /** O login tem a Apple: ao excluir a conta, o app pede o código da Apple. Servidor antigo não manda. */
+  appleSignIn?: boolean;
 }
 
 export type HistoryTone = "neutral" | "success" | "warning" | "danger" | "info";

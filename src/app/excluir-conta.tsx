@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Text } from "@/components/ui/Text";
 import { TextField } from "@/components/ui/TextField";
+import { appleCodeForAccountDeletion, SocialSignInCancelled } from "@/lib/socialAuth";
 import { color, gutter, space } from "@/theme/tokens";
 
 const WORD = "EXCLUIR";
@@ -20,7 +21,8 @@ const WHAT_HAPPENS = [
 ];
 
 // Excluir a própria conta (App Store 5.1.1(v), Google Play, LGPD). Não tem
-// volta: a confirmação é digitar a palavra, não só um toque.
+// volta: a confirmação é digitar a palavra, não só um toque. Quem entra com a
+// Apple confirma também na janela da Apple: o servidor revoga o login.
 export default function DeleteAccountScreen() {
   const { signOut } = useSession();
   const [typed, setTyped] = useState("");
@@ -33,10 +35,15 @@ export default function DeleteAccountScreen() {
     setBusy(true);
     setError(null);
     try {
-      await endpoints.deleteAccount();
+      const appleCode = await appleCodeForAccountDeletion(() => endpoints.me().then((me) => me.appleSignIn === true));
+      await endpoints.deleteAccount(appleCode);
       await signOut("Sua conta foi excluída. Se quiser voltar, é só se cadastrar de novo com o código da igreja.");
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Não foi possível excluir sua conta agora. Tente novamente.");
+      if (e instanceof SocialSignInCancelled) {
+        setError("Para excluir, confirme com a Apple — assim o Servos deixa de ter acesso ao seu ID Apple.");
+      } else {
+        setError(e instanceof ApiError ? e.message : "Não foi possível excluir sua conta agora. Tente novamente.");
+      }
       setBusy(false);
     }
   };

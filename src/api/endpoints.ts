@@ -113,8 +113,12 @@ export const endpoints = {
   scheduleHistory: (scheduleId: string) => api<{ items: ScheduleHistoryItem[] }>(`/mobile/schedules/${enc(scheduleId)}/history`),
   ministryReport: (ministryId: string, days: number) => api<MinistryReport>(`/mobile/ministries/${enc(ministryId)}/report?days=${days}`),
   me: () => api<MeProfile>("/mobile/me"),
-  /** Excluir a própria conta em todas as igrejas (não tem volta). */
-  deleteAccount: () => api<{ success: boolean }>("/mobile/me", { method: "DELETE", body: { confirm: "EXCLUIR" } }),
+  /** Excluir a própria conta em todas as igrejas (não tem volta). Com login Apple, manda o código para revogar. */
+  deleteAccount: (appleAuthorizationCode?: string | null) =>
+    api<{ success: boolean }>("/mobile/me", {
+      method: "DELETE",
+      body: appleAuthorizationCode ? { confirm: "EXCLUIR", appleAuthorizationCode } : { confirm: "EXCLUIR" },
+    }),
   updateProfile: (input: { name: string; phone?: string; birthDate?: string | null }) =>
     api<{ success: boolean }>("/profile/update", { method: "POST", body: input }),
   uploadPhoto: (file: { uri: string }) => apiUpload<{ url: string }>("/profile/upload-photo", file),

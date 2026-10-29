@@ -129,6 +129,36 @@ export async function signInWithAppleProvider(): Promise<SocialCredential> {
   };
 }
 
+/**
+ * Excluir a conta (App Store 5.1.1(v)): para quem entra com a Apple, o servidor
+ * revoga o "Entrar com Apple" — e para isso precisa de um authorizationCode
+ * NOVO da Apple (vale 5 minutos, uso único). Pede aqui, na hora de excluir.
+ * null = não se aplica ou não deu para pedir: a exclusão segue sem revogar.
+ * Lança SocialSignInCancelled se a pessoa fechou a janela da Apple.
+ */
+export async function appleCodeForAccountDeletion(
+  usesApple: () => Promise<boolean>,
+  loadApple: () => Promise<Pick<typeof import("expo-apple-authentication"), "isAvailableAsync" | "signInAsync">> = () =>
+    import("expo-apple-authentication"),
+): Promise<string | null> {
+  if (Platform.OS !== "ios") return null;
+  if (!(await usesApple().catch(() => false))) return null;
+  let Apple: Awaited<ReturnType<typeof loadApple>>;
+  try {
+    Apple = await loadApple();
+    if (!(await Apple.isAvailableAsync())) return null;
+  } catch {
+    return null;
+  }
+  try {
+    const credential = await Apple.signInAsync({ requestedScopes: [] });
+    return credential.authorizationCode ?? null;
+  } catch (error) {
+    if ((error as { code?: string })?.code === "ERR_REQUEST_CANCELED") throw new SocialSignInCancelled();
+    return null;
+  }
+}
+
 /** "Ana" + "Souza" → "Ana Souza". A Apple manda nome só no primeiro login. */
 export function appleFullName(n: { givenName?: string | null; middleName?: string | null; familyName?: string | null } | null | undefined): string | null {
   const full = [n?.givenName, n?.middleName, n?.familyName].filter((p) => p && p.trim()).join(" ").trim();
