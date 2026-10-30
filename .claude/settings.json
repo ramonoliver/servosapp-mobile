@@ -1,5 +1,11 @@
 {
   "enabledPlugins": {
-    "expo@claude-plugins-official": true
+    "expo@claude-plugins-official": true,
+    "governance-center@governanca-design": true,
+    "ds-guardian@governanca-design": true,
+    "component-reuse-guard@governanca-design": true,
+    "ux-flow-sentinel@governanca-design": true,
+    "ui-quality-gate@governanca-design": true,
+    "change-scope-protector@governanca-design": true
   }
 }

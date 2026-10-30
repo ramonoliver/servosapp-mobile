@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "project": "ServosMobile",
+  "language": "pt-BR",
+  "sourceDirs": ["src"],
+  "ignore": ["**/* [0-9].*", "**/*.test.*", "src/__tests__/**", "**/node_modules/**", ".claude/worktrees/**"],
+  "ignoreComment": "governance-ignore",
+
+  "designSystem": {
+    "tokensFile": "src/theme/tokens.ts",
+    "rawColorsAllowedIn": ["src/theme/tokens.ts"],
+    "scales": {
+      "space": { "export": "space", "reference": "space[{key}]", "props": ["padding", "paddingTop", "paddingBottom", "paddingLeft", "paddingRight", "paddingHorizontal", "paddingVertical", "paddingStart", "paddingEnd", "margin", "marginTop", "marginBottom", "marginLeft", "marginRight", "marginHorizontal", "marginVertical", "marginStart", "marginEnd", "gap", "rowGap", "columnGap"] },
+      "radius": { "export": "radius", "reference": "radius.{key}", "props": ["borderRadius", "borderTopLeftRadius", "borderTopRightRadius", "borderBottomLeftRadius", "borderBottomRightRadius"], "severity": "WARNING" }
+    },
+    "fonts": { "export": "font", "reference": "font.{key}" },
+    "typography": { "export": "type", "hint": "use <Text variant=\"...\"> de @/components/ui/Text (variantes de type em tokens.ts)" },
+    "primitives": [
+      { "name": "Text", "from": "react-native", "use": "@/components/ui/Text", "allowedIn": ["src/components/ui/Text.tsx"] }
+    ]
+  },
+
+  "components": {
+    "dirs": ["src/components"],
+    "primaryDir": "src/components/ui",
+    "propNames": { "label": ["title", "text", "caption"], "variant": ["type", "kind", "appearance", "styleType"], "size": ["sizing", "scale"], "loading": ["isLoading", "busy"] }
+  },
+
+  "routes": {
+    "dir": "src/app",
+    "framework": "expo-router",
+    "layoutFile": "_layout",
+    "destructiveWords": ["excluir", "remover", "apagar", "sair", "desfazer", "cancelar escala", "recusar", "deletar", "delete", "remove"]
+  },
+
+  "scope": {
+    "askBeforeEditing": ["package.json", "package-lock.json", "app.json", "app.config.ts", "eas.json", ".eas/**", "store.config.json", "src/theme/tokens.ts", "src/api/**", "src/auth/**", "src/features/**/*.ts"],
+    "askBeforeCommands": ["npm (i|install|add|uninstall|remove)\\b", "yarn (add|remove)\\b", "bun (add|remove)\\b", "expo install\\b", "git push\\b", "eas (build|submit|update)\\b"],
+    "businessRules": [
+      "Escalas, ministérios, convites e aprovações seguem as regras do servidor Servos-v3 (rotas /api/mobile/*); o app não inventa regra nova.",
+      "Exclusão de conta e ações destrutivas sempre pedem confirmação."
+    ]
+  },
+
+  "validation": {
+    "lint": ["npx", "eslint", "{files}"],
+    "typecheck": ["npx", "tsc", "--noEmit"],
+    "test": ["npx", "jest", "--ci", "--passWithNoTests", "--findRelatedTests", "{files}"],
+    "timeoutMs": 240000
+  },
+
+  "exceptions": [
+    { "file": "src/app/bem-vindo.tsx", "rule": "ds/raw-color", "reason": "avatares de demonstração com cores fixas da apresentação" },
+    { "file": "src/components/auth/GoogleLogo.tsx", "rule": "ds/raw-color", "reason": "cores oficiais do logotipo do Google (diretriz da marca)" }
+  ]
+}
