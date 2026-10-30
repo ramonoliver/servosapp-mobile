@@ -1,23 +1,21 @@
 import Constants from "expo-constants";
-import * as Crypto from "expo-crypto";
-import { Platform } from "react-native";
 
-// Entrar com Google e com Apple (§52). Os dois seguem o mesmo caminho:
-// login nativo no provedor → credencial → troca por um token do FIREBASE na
-// API REST pública do Identity Toolkit (mesma chave pública do web) → o
-// servidor confere o token (/auth/social) ou cria o cadastro (/join/signup).
+// Entrar com Google (§52): login nativo no Google → credencial → troca por um
+// token do FIREBASE na API REST pública do Identity Toolkit (mesma chave
+// pública do web) → o servidor confere o token (/auth/social) ou cria o
+// cadastro (/join/signup).
 //
-// Só aparecem quando a chave do Firebase está configurada (app.config.ts);
-// o Google precisa também dos IDs OAuth. Os módulos nativos são carregados
-// sob demanda: um build sem eles continua funcionando.
+// Só aparece quando a chave do Firebase e os IDs OAuth estão configurados
+// (app.config.ts). O módulo nativo é carregado sob demanda: um build sem ele
+// continua funcionando.
 
-export type SocialProvider = "google" | "apple";
+export type SocialProvider = "google";
 
 export interface SocialCredential {
   provider: SocialProvider;
   /** Token do Firebase — é o que o servidor aceita. */
   idToken: string;
-  /** Nome da conta. A Apple só manda no PRIMEIRO login da pessoa no app. */
+  /** Nome da conta no Google. */
   name: string | null;
   email: string | null;
 }
@@ -32,7 +30,7 @@ interface GoogleConfig {
 }
 
 function extra() {
-  return (Constants.expoConfig?.extra ?? {}) as { google?: GoogleConfig | null; firebaseApiKey?: string };
+  return (Constants.expoConfig?.extra ?? {}) as { google?: GoogleConfig | null };
 }
 
 // O manifesto do Expo pode trocar `null` por `{}`: só vale texto não vazio.
@@ -45,25 +43,10 @@ export function googleConfig(): GoogleConfig | null {
   return webClientId && firebaseApiKey ? { webClientId, iosClientId: text(g?.iosClientId) ?? "", firebaseApiKey } : null;
 }
 
-function firebaseApiKey(): string | null {
-  return text(extra().firebaseApiKey) ?? text(extra().google?.firebaseApiKey);
-}
 
-/** Apple só no iPhone, com a chave do Firebase e o recurso disponível no aparelho. */
-export async function appleAvailable(): Promise<boolean> {
-  if (Platform.OS !== "ios" || !firebaseApiKey()) return false;
-  try {
-    const mod = await import("expo-apple-authentication");
-    return await mod.isAvailableAsync();
-  } catch {
-    return false;
-  }
-}
 
-/** Troca a credencial do provedor por um token do Firebase. */
-async function exchange(provider: SocialProvider, postBody: string): Promise<{ idToken: string; name: string | null; email: string | null }> {
-  const key = firebaseApiKey();
-  if (!key) throw new Error("Entrar com Google ou Apple não está disponível neste aparelho.");
+/** Troca a credencial do Google por um token do Firebase. */
+async function exchange(key: string, postBody: string): Promise<{ idToken: string; name: string | null; email: string | null }> {
   const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${encodeURIComponent(key)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -71,7 +54,7 @@ async function exchange(provider: SocialProvider, postBody: string): Promise<{ i
   }).catch(() => null);
   const json = (await res?.json().catch(() => ({}))) as { idToken?: string; displayName?: string; fullName?: string; email?: string } | undefined;
   if (!res?.ok || !json?.idToken) {
-    throw new Error(`Não foi possível entrar com ${provider === "apple" ? "a Apple" : "o Google"}. Tente de novo.`);
+    throw new Error("Não foi possível entrar com o Google. Tente de novo.");
   }
   return { idToken: json.idToken, name: json.displayName || json.fullName || null, email: json.email || null };
 }
@@ -97,40 +80,6 @@ export async function signInWithGoogleProvider(): Promise<SocialCredential> {
     throw new Error("Não foi possível abrir o Google. Tente de novo ou entre com seu e-mail.");
   }
   if (!googleToken) throw new Error("O Google não devolveu sua conta. Tente de novo.");
-  const out = await exchange("google", `id_token=${encodeURIComponent(googleToken)}&providerId=google.com`);
+  const out = await exchange(cfg.firebaseApiKey, `id_token=${encodeURIComponent(googleToken)}&providerId=google.com`);
   return { provider: "google", ...out };
-}
-
-export async function signInWithAppleProvider(): Promise<SocialCredential> {
-  const Apple = await import("expo-apple-authentication");
-  // Nonce: a Apple assina o hash; o Firebase confere com o valor original.
-  const rawNonce = Crypto.randomUUID();
-  const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, rawNonce);
-  let credential: Awaited<ReturnType<typeof Apple.signInAsync>>;
-  try {
-    credential = await Apple.signInAsync({
-      requestedScopes: [Apple.AppleAuthenticationScope.FULL_NAME, Apple.AppleAuthenticationScope.EMAIL],
-      nonce: hashedNonce,
-    });
-  } catch (error) {
-    if ((error as { code?: string })?.code === "ERR_REQUEST_CANCELED") throw new SocialSignInCancelled();
-    throw new Error("Não foi possível abrir o login da Apple. Tente de novo ou entre com seu e-mail.");
-  }
-  if (!credential.identityToken) throw new Error("A Apple não devolveu sua conta. Tente de novo.");
-  const out = await exchange(
-    "apple",
-    `id_token=${encodeURIComponent(credential.identityToken)}&providerId=apple.com&nonce=${encodeURIComponent(rawNonce)}`,
-  );
-  return {
-    provider: "apple",
-    idToken: out.idToken,
-    name: appleFullName(credential.fullName) ?? out.name,
-    email: credential.email ?? out.email,
-  };
-}
-
-/** "Ana" + "Souza" → "Ana Souza". A Apple manda nome só no primeiro login. */
-export function appleFullName(n: { givenName?: string | null; middleName?: string | null; familyName?: string | null } | null | undefined): string | null {
-  const full = [n?.givenName, n?.middleName, n?.familyName].filter((p) => p && p.trim()).join(" ").trim();
-  return full || null;
 }

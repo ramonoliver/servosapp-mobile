@@ -30,7 +30,7 @@ interface SessionState {
   pending: PendingJoin | null;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithCode: (email: string, code: string) => Promise<void>;
-  /** Google ou Apple (token do Firebase). */
+  /** Google (token do Firebase). */
   signInWithSocial: (firebaseIdToken: string) => Promise<void>;
   /** Entra com uma sessão já emitida (ex.: igreja recém-criada). */
   enterWithResponse: (res: AuthResponse) => Promise<void>;

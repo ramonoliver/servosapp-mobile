@@ -36,7 +36,6 @@ import { EnvelopeSimpleIcon as PEnvelopeSimpleIcon } from "phosphor-react-native
 import { EyeIcon as PEyeIcon } from "phosphor-react-native/src/icons/Eye";
 import { EyeSlashIcon as PEyeSlashIcon } from "phosphor-react-native/src/icons/EyeSlash";
 import { FileTextIcon as PFileTextIcon } from "phosphor-react-native/src/icons/FileText";
-import { GoogleLogoIcon as PGoogleLogoIcon } from "phosphor-react-native/src/icons/GoogleLogo";
 import { HandsPrayingIcon as PHandsPrayingIcon } from "phosphor-react-native/src/icons/HandsPraying";
 import { ImageIcon as PImageIcon } from "phosphor-react-native/src/icons/Image";
 import { InfoIcon as PInfoIcon } from "phosphor-react-native/src/icons/Info";
@@ -102,7 +101,6 @@ export const EnvelopeSimpleIcon = dyn(PEnvelopeSimpleIcon);
 export const EyeIcon = dyn(PEyeIcon);
 export const EyeSlashIcon = dyn(PEyeSlashIcon);
 export const FileTextIcon = dyn(PFileTextIcon);
-export const GoogleLogoIcon = dyn(PGoogleLogoIcon);
 export const HandsPrayingIcon = dyn(PHandsPrayingIcon);
 export const ImageIcon = dyn(PImageIcon);
 export const InfoIcon = dyn(PInfoIcon);

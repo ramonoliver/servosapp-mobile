@@ -43,7 +43,7 @@ Arquivo do Firebase (Console → Configurações do projeto → seus apps; criar
 
 Apple Developer → Keys → criar uma chave com **Apple Push Notifications service (APNs)**, baixar o `.p8`. Firebase Console → Cloud Messaging → app iOS → enviar a chave (Key ID e Team ID).
 
-## 4. Login com Apple e Google
+## 4. Login com Google
 
 Ver `docs/07-funcoes-novas.md` → "Para funcionar em produção".
 
@@ -58,7 +58,7 @@ npx eas-cli@latest build --platform ios --profile production
 npx eas-cli@latest submit --platform ios --latest
 ```
 
-No primeiro build o EAS pergunta pela conta Apple e cria certificados e o perfil sozinho (inclui Push e Entrar com Apple). No App Store Connect, o app aparece em TestFlight; adicionar a igreja piloto como testadores (até 100 internos ou 10 mil externos).
+No primeiro build o EAS pergunta pela conta Apple e cria certificados e o perfil sozinho (inclui Push). No App Store Connect, o app aparece em TestFlight; adicionar a igreja piloto como testadores (até 100 internos ou 10 mil externos).
 
 Correções só de código (sem mudar módulo nativo) chegam sem nova revisão:
 
@@ -101,7 +101,7 @@ Os textos abaixo já estão em `store.config.json` (EAS Metadata). Para enviá-l
 
 - **Notas para o revisor (App Review Information):**
 
-> O Servos é usado por igrejas cadastradas. Para revisar, use a conta de demonstração (já faz parte da "Igreja Demonstração"): revisao@servosapp.com / [senha]. Excluir a conta: Perfil → Excluir minha conta. Entrar com Apple: disponível na tela de login; contas sem cadastro são orientadas a usar o código da igreja (igreja de demonstração: código [código]).
+> O Servos é usado por igrejas cadastradas. Para revisar, use a conta de demonstração (já faz parte da "Igreja Demonstração"): revisao@servosapp.com / [senha]. Excluir a conta: Perfil → Excluir minha conta. Entrar com o Google: disponível na tela de login; contas sem cadastro são orientadas a usar o código da igreja (igreja de demonstração: código [código]).
 
 - **Capturas:** `store/app-store/iphone-6.9/` (e `iphone-6.5/`, se pedir). Ícone: `store/app-store/icone-1024.png`.
 

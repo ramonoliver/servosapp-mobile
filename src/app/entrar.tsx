@@ -150,9 +150,9 @@ function SignupForm({ lookup, invite, onChangeChurch }: { lookup: JoinLookup; in
   const passwordRef = useRef<TextInput>(null);
   const preapproved = lookup.invite?.kind === "person";
   const providers = useSocialProviders();
-  const hasSocial = providers.google || providers.apple === true;
+  const hasSocial = providers.google;
 
-  // Apple/Google: a conta de login vem do provedor — sem senha, e-mail
+  // Google: a conta de login vem do Google — sem senha, e-mail
   // confirmado por ele. Só falta o nome, se a conta não mandou.
   const socialSignup = async (credential: SocialCredential) => {
     let fullName = socialSignupName(name, credential.name);
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   rule: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: color.borderStrong },
 });
 
-/** A Apple só manda o nome no primeiro login: pergunta (só existe no iOS, onde a Apple aparece). */
+/** Conta do Google sem nome e sobrenome: pergunta (o Alert.prompt só existe no iOS). */
 function askFullName(suggestion: string): Promise<string | null> {
   if (Platform.OS !== "ios") return Promise.resolve(null);
   return new Promise((resolve) => {

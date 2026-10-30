@@ -60,7 +60,7 @@ describe("colar código", () => {
   });
 });
 
-describe("nome no cadastro com Apple/Google", () => {
+describe("nome no cadastro com Google", () => {
   it("prefere o nome completo digitado", () => {
     expect(socialSignupName("Ana  Paula Souza", "Ana P.")).toBe("Ana Paula Souza");
   });
