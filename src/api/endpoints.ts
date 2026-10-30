@@ -71,7 +71,7 @@ export const endpoints = {
   requestLoginCode: (email: string) => api<{ success: boolean }>("/auth/email-code", { method: "POST", body: { email: email.trim() } }),
   verifyLoginCode: (email: string, code: string) =>
     api<AuthResponse>("/auth/email-code/verify", { method: "POST", body: { email: email.trim(), code } }),
-  /** Google ou Apple: token do Firebase recém-obtido no provedor. */
+  /** Google: token do Firebase recém-obtido no provedor. */
   socialLogin: (firebaseIdToken: string) => api<AuthResponse>("/auth/social", { method: "POST", body: { idToken: firebaseIdToken } }),
   logout: () => api<{ success: boolean }>("/auth/logout", { method: "POST" }),
   forgotPassword: (email: string) => api<{ success: boolean }>("/auth/forgot-password", { method: "POST", body: { email: email.trim() } }),
@@ -91,7 +91,7 @@ export const endpoints = {
   // Entrada na igreja (públicas)
   joinLookup: (code: string, invite?: string | null) =>
     api<JoinLookup>(`/join/lookup?c=${enc(code)}${invite ? `&i=${enc(invite)}` : ""}`),
-  /** Com senha, ou com Google/Apple (`idToken` no lugar de e-mail e senha). */
+  /** Com senha, ou com Google (`idToken` no lugar de e-mail e senha). */
   joinSignup: (
     input:
       | { code: string; invite?: string | null; name: string; email: string; phone: string; password: string }

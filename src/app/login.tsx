@@ -21,8 +21,8 @@ function loginError(e: unknown): string {
   return e instanceof Error ? e.message : "Não foi possível entrar. Tente novamente.";
 }
 
-// Login (§52): e-mail e senha como caminho principal; sem senha (Apple,
-// Google ou código por e-mail) como alternativas; e, para quem chega pela
+// Login (§52): e-mail e senha como caminho principal; sem senha (Google
+// ou código por e-mail) como alternativas; e, para quem chega pela
 // primeira vez, a entrada pelo código da igreja.
 export default function LoginScreen() {
   const { signIn, signInWithSocial, signedOutReason } = useSession();
@@ -56,7 +56,7 @@ export default function LoginScreen() {
       await signInWithSocial(credential.idToken);
       track("login_succeeded", { method: credential.provider });
     } catch (e) {
-      // Conta do Google/Apple sem cadastro no Servos: o caminho é o código da igreja.
+      // Conta do Google sem cadastro no Servos: o caminho é o código da igreja.
       if (e instanceof ApiError && e.code === "NO_ACCOUNT") {
         Alert.alert("Primeira vez no Servos?", e.message, [
           { text: "Agora não", style: "cancel" },

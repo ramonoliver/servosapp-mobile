@@ -8,7 +8,7 @@ import { track } from "@/lib/analytics";
 jest.mock("expo-router", () => ({ router: { push: jest.fn(), replace: jest.fn() } }));
 jest.mock("@/auth/session", () => ({ useSession: jest.fn() }));
 jest.mock("@/lib/analytics", () => ({ track: jest.fn() }));
-// Apple/Google dependem de módulo nativo; o login social fica fora destes testes.
+// O Google depende de módulo nativo; o login social fica fora destes testes.
 jest.mock("@/components/auth/SocialButtons", () => ({ SocialButtons: () => null }));
 
 jest.useFakeTimers();

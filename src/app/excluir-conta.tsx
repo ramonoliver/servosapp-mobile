@@ -12,7 +12,7 @@ import { color, gutter, space } from "@/theme/tokens";
 const WORD = "EXCLUIR";
 
 const WHAT_HAPPENS = [
-  "Seu login deixa de existir — inclusive pelo Google ou pela Apple.",
+  "Seu login deixa de existir — inclusive pelo Google.",
   "Seu nome, e-mail, celular, foto e data de nascimento são apagados.",
   "Você sai de todos os ministérios e células, em todas as igrejas.",
   "Suas próximas escalas são canceladas e a liderança vê a vaga aberta.",

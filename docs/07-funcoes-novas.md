@@ -36,18 +36,18 @@ As sete funções que faltavam. Backend no worktree `Servos-v3-mobile-api` (bran
 
 Precisa de build nativo novo (agenda, seletor de documentos, botão de colar, modo escuro no `Info.plist`). O servidor precisa de deploy **antes** de publicar o app, porque o app chama as rotas novas.
 
-## Entrar com Apple e Google (2026-09-30)
+## Entrar com Google (2026-09-30)
 
-- **Servidor:** `lib/auth/social.ts` e `POST /api/auth/social` (pública; a credencial é o token do Firebase obtido no provedor). Acha a pessoa pela conta de login e, se não houver perfil nela, pelo **e-mail verificado** pelo Google/Apple — a mesma garantia do "código por e-mail". `/api/auth/google` (web) usa a mesma regra. Cadastro pendente → `PENDING_APPROVAL`; sem conta → `NO_ACCOUNT`.
+> **2026-10-29:** o "Entrar com Apple" saiu do app por decisão do produto; fica só o Google, com o G colorido no botão. O servidor continua aceitando `apple.com`, sem uso. Risco conhecido: a regra 4.8 da App Store pede outro login equivalente (com opção de esconder o e-mail) quando há login do Google; se a revisão recusar, a saída é voltar a Apple ou tirar o Google do iPhone.
+
+- **Servidor:** `lib/auth/social.ts` e `POST /api/auth/social` (pública; a credencial é o token do Firebase obtido no provedor). Acha a pessoa pela conta de login e, se não houver perfil nela, pelo **e-mail verificado** pelo Google — a mesma garantia do "código por e-mail". `/api/auth/google` (web) usa a mesma regra. Cadastro pendente → `PENDING_APPROVAL`; sem conta → `NO_ACCOUNT`.
 - **Cadastro:** `POST /api/join/signup` aceita `idToken` no lugar de e-mail e senha. A conta de login é a do provedor (sem senha no Servos).
-- **App:** `lib/socialAuth.ts` (Google Sign-In nativo e Sign in with Apple com nonce → token do Firebase) e `components/auth/SocialButtons.tsx`. Aparecem no login e no cadastro pelo código. Apple primeiro e com o botão oficial (regra 4.8 da App Store).
-- **Apple e "Ocultar meu e-mail":** chega um e-mail `@privaterelay.appleid.com`, que não bate com cadastro antigo. Quem já tem conta com senha e ocultou o e-mail precisa entrar com a senha ou o código por e-mail.
-- **Nome:** a Apple só manda o nome no primeiro login; se faltar, o app pergunta.
+- **App:** `lib/socialAuth.ts` (Google Sign-In nativo → token do Firebase) e `components/auth/SocialButtons.tsx` (botão "Continuar com o Google" com o G colorido de `GoogleLogo.tsx`). Aparece no login e no cadastro pelo código.
+- **Nome:** se a conta do Google não tiver nome e sobrenome, o app pergunta (no iOS).
 
 ### Para funcionar em produção (fora do código)
 
-1. **Firebase Console → Authentication → Sign-in method:** ativar **Google** e **Apple**.
-2. **Apple Developer (conta paga):** no App ID `com.servosapp.app`, ligar **Sign In with Apple** (o EAS faz isso no build). Para o Firebase aceitar tokens do app iOS, o bundle id basta — não precisa de Service ID.
-3. **Google Cloud → Credenciais:** IDs OAuth "Web" e "iOS" (bundle `com.servosapp.app`) e, para Android, um "Android" com o SHA-1 do certificado do EAS.
-4. **Variáveis do build (EAS):** `EXPO_PUBLIC_FIREBASE_API_KEY` (liga a Apple), `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` e `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` (ligam o Google).
-5. **Atenção no Firebase:** manter "uma conta por endereço de e-mail". Se uma conta de senha tiver e-mail **não verificado** e a pessoa entrar com o Google do mesmo e-mail, o Firebase pode trocar a senha pelo Google; ela continua entrando pelo Google ou pelo código por e-mail.
+1. **Firebase Console → Authentication → Sign-in method:** ativar **Google**.
+2. **Google Cloud → Credenciais:** IDs OAuth "Web" e "iOS" (bundle `com.servosapp.app`) e, para Android, um "Android" com o SHA-1 do certificado do EAS.
+3. **Variáveis do build (EAS):** `EXPO_PUBLIC_FIREBASE_API_KEY`, `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` e `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` (ligam o Google).
+4. **Atenção no Firebase:** manter "uma conta por endereço de e-mail". Se uma conta de senha tiver e-mail **não verificado** e a pessoa entrar com o Google do mesmo e-mail, o Firebase pode trocar a senha pelo Google; ela continua entrando pelo Google ou pelo código por e-mail.

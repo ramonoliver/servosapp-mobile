@@ -63,9 +63,8 @@ export function codeFromClipboard(text: string): { code: string; invite: string 
 }
 
 /**
- * Nome do cadastro com Apple/Google: o que a pessoa digitou (se já tem nome
- * e sobrenome) ou o da conta. null = falta pedir. A Apple só manda o nome no
- * primeiro login no app; o Google sempre manda.
+ * Nome do cadastro com Google: o que a pessoa digitou (se já tem nome e
+ * sobrenome) ou o da conta. null = falta pedir.
  */
 export function socialSignupName(typed: string, fromProvider: string | null): string | null {
   const full = (s: string | null) => (s && s.trim().split(/\s+/).length >= 2 ? s.trim().replace(/\s+/g, " ") : null);

@@ -56,7 +56,7 @@
       "email": "contato@servosapp.com",
       "demoUsername": "revisao@servosapp.com",
       "demoRequired": true,
-      "notes": "O Servos é usado por igrejas cadastradas. Para revisar, use a conta de demonstração informada acima: ela já faz parte da \"Igreja Demonstração\", com ministérios, escalas, músicas e conversa. Excluir a conta: Perfil → Excluir minha conta. Entrar com Apple está na tela de login; contas sem cadastro são orientadas a usar o código da igreja ou a criar uma igreja pelo app."
+      "notes": "O Servos é usado por igrejas cadastradas. Para revisar, use a conta de demonstração informada acima: ela já faz parte da \"Igreja Demonstração\", com ministérios, escalas, músicas e conversa. Excluir a conta: Perfil → Excluir minha conta. Entrar com o Google está na tela de login; contas sem cadastro são orientadas a usar o código da igreja ou a criar uma igreja pelo app."
     },
     "release": {
       "automaticRelease": false,
